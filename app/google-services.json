@@ -1,0 +1,59 @@
+{
+  "project_info": {
+    "project_number": "818103490380",
+    "firebase_url": "https://tenun-ikat-ntt-18.firebaseio.com",
+    "project_id": "tenun-ikat-ntt-18",
+    "storage_bucket": "tenun-ikat-ntt-18.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:818103490380:android:4e89efebd63c914a",
+        "android_client_info": {
+          "package_name": "ken.tenunikatntt"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "818103490380-3dt46kgor1h09t2khb07loe8vdepbtrk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ken.tenunikatntt",
+            "certificate_hash": "519397d24f914a9f935f3d66500649e18c6160e3"
+          }
+        },
+        {
+          "client_id": "818103490380-rpjht3ke650kfj95j3l4ese4si9u6rtk.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "818103490380-rpjht3ke650kfj95j3l4ese4si9u6rtk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBPRaegx7BMOJc5SpCKKHlhRAV6vaMl3oI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "818103490380-rpjht3ke650kfj95j3l4ese4si9u6rtk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
