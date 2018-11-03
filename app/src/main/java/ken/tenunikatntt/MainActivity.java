@@ -1,4 +1,5 @@
 package ken.tenunikatntt;
+
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -27,16 +28,19 @@ import java.security.NoSuchAlgorithmException;
 import io.paperdb.Paper;
 import ken.tenunikatntt.Common.Common;
 import ken.tenunikatntt.Model.User;
+
 public class MainActivity extends AppCompatActivity {
-    Button btnSignIn,btnSignUp;
+    Button btnSignIn, btnSignUp;
     TextView txtSlogan;
+
     @Override
-    protected void onCreate(Bundle savedInstanceState){super.onCreate(savedInstanceState);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         printKeyHash();
-        btnSignIn = (Button)findViewById(R.id.btnSignIn);
-        btnSignUp = (Button)findViewById(R.id.btnSignUp);
-        txtSlogan = (TextView)findViewById(R.id.txtSlogan);
+        btnSignIn = (Button) findViewById(R.id.btnSignIn);
+        btnSignUp = (Button) findViewById(R.id.btnSignUp);
+        txtSlogan = (TextView) findViewById(R.id.txtSlogan);
         //Init Paper
         Paper.init(this);
         btnSignIn.setOnClickListener(new View.OnClickListener() {
@@ -48,27 +52,33 @@ public class MainActivity extends AppCompatActivity {
         btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent signUp = new Intent(MainActivity.this,SignUp.class);
-                startActivity(signUp);}});
+                Intent signUp = new Intent(MainActivity.this, SignUp.class);
+                startActivity(signUp);
+            }
+        });
         btnSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent signIn = new Intent(MainActivity.this,SignIn.class);
-                startActivity(signIn);}});
+                Intent signIn = new Intent(MainActivity.this, SignIn.class);
+                startActivity(signIn);
+            }
+        });
         //Check Remember
         String user = Paper.book().read(Common.USER_KEY);
         String pwd = Paper.book().read(Common.PWD_KEY);
-        if (user !=null && pwd !=null)
-        {if (!user.isEmpty() && !pwd.isEmpty()) login(user,pwd);}}
+        if (user != null && pwd != null) {
+            if (!user.isEmpty() && !pwd.isEmpty()) login(user, pwd);
+        }
+    }
+
     private void printKeyHash() {
-        try{
+        try {
             PackageInfo info = getPackageManager().getPackageInfo("ken.tenunikatntt",
                     PackageManager.GET_SIGNATURES);
-            for (Signature signature:info.signatures)
-            {
+            for (Signature signature : info.signatures) {
                 MessageDigest md = MessageDigest.getInstance("SHA");
                 md.update(signature.toByteArray());
-                Log.d("KeyHash", Base64.encodeToString(md.digest(),Base64.DEFAULT));
+                Log.d("KeyHash", Base64.encodeToString(md.digest(), Base64.DEFAULT));
             }
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
@@ -76,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
     private void login(final String phone, final String pwd) {
         //Tinggal Copy dari SignIn.class
 
@@ -101,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
                         mDialog.dismiss();
                         User user = dataSnapshot.child(phone).getValue(User.class);
                         user.setPhone(phone); //set Phone
-                            if (user.getPassword().equals(pwd)) {
+                        if (user.getPassword().equals(pwd)) {
                             {
                                 Intent homeIntent = new Intent(MainActivity.this, Home.class);
                                 Common.currentUser = user;
@@ -124,10 +135,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-        }
-        else
-        {
+        } else {
             Toast.makeText(MainActivity.this, "Mohon cek koneksi internet anda", Toast.LENGTH_SHORT).show();
             return;
         }
-    }}
+    }
+}

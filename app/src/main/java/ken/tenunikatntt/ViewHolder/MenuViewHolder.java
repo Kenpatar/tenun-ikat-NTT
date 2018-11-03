@@ -4,12 +4,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import ken.tenunikatntt.Interface.ItemClickListener;
 import ken.tenunikatntt.R;
 
 //Created by Emilken18 on 6/10/2018.
 
-public class MenuViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+public class MenuViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
     public TextView txtMenuName;
     public ImageView imageView;
@@ -33,6 +34,6 @@ public class MenuViewHolder extends RecyclerView.ViewHolder implements View.OnCl
 
     @Override
     public void onClick(View view) {
-        itemClickListener.onClick(view,getAdapterPosition(),false);
+        itemClickListener.onClick(view, getAdapterPosition(), false);
     }
 }

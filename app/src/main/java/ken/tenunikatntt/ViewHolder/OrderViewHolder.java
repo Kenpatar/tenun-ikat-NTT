@@ -13,7 +13,7 @@ import ken.tenunikatntt.R;
 
 public class OrderViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-    public TextView txtOrderId,txtOrderStatus,txtOrderPhone,txtOrderAddress;
+    public TextView txtOrderId, txtOrderStatus, txtOrderPhone, txtOrderAddress;
 
     private ItemClickListener itemClickListener;
 
@@ -28,13 +28,13 @@ public class OrderViewHolder extends RecyclerView.ViewHolder implements View.OnC
         itemView.setOnClickListener(this);
     }
 
-    public void setItemClickListener (ItemClickListener itemClickListener) {
+    public void setItemClickListener(ItemClickListener itemClickListener) {
         this.itemClickListener = itemClickListener;
     }
 
     @Override
     public void onClick(View view) {
-        itemClickListener.onClick(view,getAdapterPosition(),false);
+        itemClickListener.onClick(view, getAdapterPosition(), false);
 
     }
 }

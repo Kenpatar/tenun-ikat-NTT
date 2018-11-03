@@ -38,10 +38,10 @@ import ken.tenunikatntt.Model.Rating;
 
 import static android.R.attr.value;
 
-public class KainDetail extends AppCompatActivity implements RatingDialogListener{
+public class KainDetail extends AppCompatActivity implements RatingDialogListener {
 
 
-    TextView kain_description,kain_name,kain_price;
+    TextView kain_description, kain_name, kain_price;
     ImageView kain_image;
     CollapsingToolbarLayout collapsingToolbarLayout;
     FloatingActionButton btnRating;
@@ -49,7 +49,7 @@ public class KainDetail extends AppCompatActivity implements RatingDialogListene
     ElegantNumberButton numberButton;
     RatingBar ratingBar;
 
-    String kainId="";
+    String kainId = "";
 
     FirebaseDatabase database;
     DatabaseReference Kains;
@@ -84,13 +84,13 @@ public class KainDetail extends AppCompatActivity implements RatingDialogListene
         btnCart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               new Database(getBaseContext()).addToCart(new Order(
-                       kainId,
-                       currentKain.getName(),
-                       numberButton.getNumber(),
-                       currentKain.getPrice(),
-                       currentKain.getDiscount()
-               ));
+                new Database(getBaseContext()).addToCart(new Order(
+                        kainId,
+                        currentKain.getName(),
+                        numberButton.getNumber(),
+                        currentKain.getPrice(),
+                        currentKain.getDiscount()
+                ));
                 Toast.makeText(KainDetail.this, "Added to Cart", Toast.LENGTH_SHORT).show();
             }
         });
@@ -106,39 +106,34 @@ public class KainDetail extends AppCompatActivity implements RatingDialogListene
         collapsingToolbarLayout.setCollapsedTitleTextAppearance(R.style.CollapsedAppbar);
 
         // get kain Id from Intent
-        if(getIntent() !=null)
-        {
+        if (getIntent() != null) {
             kainId = getIntent().getStringExtra("menuId");
-        if(kainId != null && !kainId.isEmpty())
-        {
-            if (Common.isConnectedToInternet(getBaseContext()))
-            {
-                getDetailKain(kainId);
-                getRatingKain(kainId);
+            if (kainId != null && !kainId.isEmpty()) {
+                if (Common.isConnectedToInternet(getBaseContext())) {
+                    getDetailKain(kainId);
+                    getRatingKain(kainId);
+                } else {
+                    Toast.makeText(KainDetail.this, "Mohon Cek koneksi anda", Toast.LENGTH_SHORT).show();
+                    return;
+                }
             }
-            else
-            {
-                Toast.makeText(KainDetail.this, "Mohon Cek koneksi anda", Toast.LENGTH_SHORT).show();
-                return;
-            }
-        }}
-}
+        }
+    }
 
     private void getRatingKain(String kainId) {
         Query kainRating = ratingTbl.orderByChild("KainId").equalTo(kainId);
 
         kainRating.addValueEventListener(new ValueEventListener() {
-            int count=0, sum=0;
+            int count = 0, sum = 0;
+
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot postSnapshot:dataSnapshot.getChildren())
-                {
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     Rating item = postSnapshot.getValue(Rating.class);
-                    sum+=Integer.parseInt(item.getRateValue());
+                    sum += Integer.parseInt(item.getRateValue());
                     count++;
                 }
-                if (count !=0)
-                {
+                if (count != 0) {
                     float average = sum / count;
                     ratingBar.setRating(average);
                 }
@@ -155,7 +150,7 @@ public class KainDetail extends AppCompatActivity implements RatingDialogListene
         new AppRatingDialog.Builder()
                 .setPositiveButtonText("Submit")
                 .setNegativeButtonText("Cancel")
-                .setNoteDescriptions(Arrays.asList("Buruk","Tidak Suka","Lumayan","Suka","Suka Sekali"))
+                .setNoteDescriptions(Arrays.asList("Buruk", "Tidak Suka", "Lumayan", "Suka", "Suka Sekali"))
                 .setDefaultRating(1)
                 .setTitle("Beri Nilai Kualitas Kain")
                 .setDescription("Jumlah Bintang & Ulasan Singkat")
@@ -206,15 +201,12 @@ public class KainDetail extends AppCompatActivity implements RatingDialogListene
         ratingTbl.child(Common.currentUser.getPhone()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.child(Common.currentUser.getPhone()).exists())
-                {
+                if (dataSnapshot.child(Common.currentUser.getPhone()).exists()) {
                     //Remove old value
                     ratingTbl.child(Common.currentUser.getPhone()).removeValue();
                     //Update new value
                     ratingTbl.child(Common.currentUser.getPhone()).setValue(rating);
-                }
-                else
-                {
+                } else {
                     //Reove old value
                     ratingTbl.child(Common.currentUser.getPhone()).setValue(rating);
                 }

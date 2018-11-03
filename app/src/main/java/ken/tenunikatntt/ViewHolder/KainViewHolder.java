@@ -14,8 +14,8 @@ import ken.tenunikatntt.R;
 
 public class KainViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-    public TextView kain_name,kain_price;
-    public ImageView kain_image,fav_image, share_image,quick_cart;
+    public TextView kain_name, kain_price;
+    public ImageView kain_image, fav_image, share_image, quick_cart;
 
     private ItemClickListener itemClickListener;
 
@@ -26,12 +26,12 @@ public class KainViewHolder extends RecyclerView.ViewHolder implements View.OnCl
     public KainViewHolder(View itemView) {
         super(itemView);
 
-        kain_name = (TextView)itemView.findViewById(R.id.kain_name);
-        kain_image = (ImageView)itemView.findViewById(R.id.kain_image);
-        fav_image = (ImageView)itemView.findViewById(R.id.fav);
-        kain_price = (TextView)itemView.findViewById(R.id.kain_price);
+        kain_name = (TextView) itemView.findViewById(R.id.kain_name);
+        kain_image = (ImageView) itemView.findViewById(R.id.kain_image);
+        fav_image = (ImageView) itemView.findViewById(R.id.fav);
+        kain_price = (TextView) itemView.findViewById(R.id.kain_price);
 //        share_image = (ImageView)itemView.findViewById(R.id.btnShare);
-        quick_cart = (ImageView)itemView.findViewById(R.id.btn_quick_cart);
+        quick_cart = (ImageView) itemView.findViewById(R.id.btn_quick_cart);
 
 
         itemView.setOnClickListener(this);
@@ -39,6 +39,6 @@ public class KainViewHolder extends RecyclerView.ViewHolder implements View.OnCl
 
     @Override
     public void onClick(View view) {
-        itemClickListener.onClick(view,getAdapterPosition(),false);
+        itemClickListener.onClick(view, getAdapterPosition(), false);
     }
 }

@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -26,7 +27,7 @@ import ken.tenunikatntt.Model.User;
 
 public class SignIn extends AppCompatActivity {
 
-    EditText edtPhone,edtPassword;
+    EditText edtPhone, edtPassword;
     Button btnSignIn;
     com.rey.material.widget.CheckBox ckbRemember;
     TextView txtForgotPwd;
@@ -38,9 +39,9 @@ public class SignIn extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
 
-        edtPassword = (MaterialEditText)findViewById(R.id.edtPassword);
-        edtPhone = (MaterialEditText)findViewById(R.id.edtPhone);
-        btnSignIn = (Button)findViewById(R.id.btnSignIn);
+        edtPassword = (MaterialEditText) findViewById(R.id.edtPassword);
+        edtPhone = (MaterialEditText) findViewById(R.id.edtPhone);
+        btnSignIn = (Button) findViewById(R.id.btnSignIn);
         ckbRemember = (com.rey.material.widget.CheckBox) findViewById(R.id.ckbRemember);
         txtForgotPwd = findViewById(R.id.txtForgotPwd);
 
@@ -66,10 +67,9 @@ public class SignIn extends AppCompatActivity {
                 if (Common.isConnectedToInternet(getBaseContext())) {
 
                     //Simpan user & password
-                    if (ckbRemember.isChecked())
-                    {
-                        Paper.book().write(Common.USER_KEY,edtPhone.getText().toString());
-                        Paper.book().write(Common.PWD_KEY,edtPassword.getText().toString());
+                    if (ckbRemember.isChecked()) {
+                        Paper.book().write(Common.USER_KEY, edtPhone.getText().toString());
+                        Paper.book().write(Common.PWD_KEY, edtPassword.getText().toString());
                     }
 
                     final ProgressDialog mDialog = new ProgressDialog(SignIn.this);
@@ -115,9 +115,7 @@ public class SignIn extends AppCompatActivity {
                         }
                     });
 
-                }
-                else
-                {
+                } else {
                     Toast.makeText(SignIn.this, "Mohon cek koneksi internet anda", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -133,7 +131,7 @@ public class SignIn extends AppCompatActivity {
         builer.setMessage("Masukan Secure Code");
 
         LayoutInflater inflater = this.getLayoutInflater();
-        View forgot_view = inflater.inflate(R.layout.forgot_password_layout,null);
+        View forgot_view = inflater.inflate(R.layout.forgot_password_layout, null);
 
         builer.setView(forgot_view);
         builer.setIcon(R.drawable.ic_security_black_24dp);
@@ -152,9 +150,9 @@ public class SignIn extends AppCompatActivity {
                         User user = dataSnapshot.child(edtPhone.getText().toString())
                                 .getValue(User.class);
                         if (user.getSecureCode().equals(edtSecureCode.getText().toString()))
-                            Toast.makeText(SignIn.this, "Password Anda : "+user.getPassword(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(SignIn.this, "Password Anda : " + user.getPassword(), Toast.LENGTH_LONG).show();
                         else
-                            Toast.makeText(SignIn.this, "Secure Code Salah! : "+user.getPassword(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(SignIn.this, "Secure Code Salah! : " + user.getPassword(), Toast.LENGTH_LONG).show();
 
                     }
 

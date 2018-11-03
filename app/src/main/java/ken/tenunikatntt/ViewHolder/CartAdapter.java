@@ -60,7 +60,7 @@ class CartViewHolder extends RecyclerView.ViewHolder implements View.OnClickList
     @Override
     public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
         contextMenu.setHeaderTitle("Select action");
-        contextMenu.add(0,0,getAdapterPosition(), Common.DELETE);
+        contextMenu.add(0, 0, getAdapterPosition(), Common.DELETE);
     }
 }
 
@@ -77,7 +77,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartViewHolder> {
     @Override
     public CartViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(cart);
-        View itemView = inflater.inflate(R.layout.cart_layout,parent,false);
+        View itemView = inflater.inflate(R.layout.cart_layout, parent, false);
         return new CartViewHolder(itemView);
     }
 
@@ -100,18 +100,18 @@ public class CartAdapter extends RecyclerView.Adapter<CartViewHolder> {
 
                 int total = 0;
                 List<Order> orders = new Database(cart).getCarts();
-                for (Order item:orders)
-                    total+=(Integer.parseInt(order.getPrice()))*(Integer.parseInt(item.getQuantity()));
-                Locale locale = new Locale("id","ID");
+                for (Order item : orders)
+                    total += (Integer.parseInt(order.getPrice())) * (Integer.parseInt(item.getQuantity()));
+                Locale locale = new Locale("id", "ID");
                 NumberFormat fmt = NumberFormat.getCurrencyInstance(locale);
 
                 cart.txtTotalPrice.setText(fmt.format(total));
             }
         });
 
-        Locale locale = new Locale("id","ID");
+        Locale locale = new Locale("id", "ID");
         NumberFormat fmt = NumberFormat.getCurrencyInstance(locale);
-        int price = (Integer.parseInt(listData.get(position).getPrice()))*(Integer.parseInt(listData.get(position).getQuantity()));
+        int price = (Integer.parseInt(listData.get(position).getPrice())) * (Integer.parseInt(listData.get(position).getQuantity()));
         holder.txt_Price.setText(fmt.format(price));
 
         holder.txt_cart_name.setText(listData.get(position).getProductName());

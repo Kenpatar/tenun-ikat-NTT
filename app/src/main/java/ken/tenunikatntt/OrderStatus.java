@@ -42,11 +42,12 @@ public class OrderStatus extends AppCompatActivity {
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
-        if(getIntent()!=null)
+        if (getIntent() != null)
             loadOrders(Common.currentUser.getPhone());
         else
             loadOrders(getIntent().getStringExtra("userPhone"));
     }
+
     @Override
     protected void onStart() {
         super.onStart();

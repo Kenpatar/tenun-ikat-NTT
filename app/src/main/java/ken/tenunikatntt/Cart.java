@@ -17,7 +17,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -63,6 +66,8 @@ public class Cart extends AppCompatActivity {
 
     APIService mService;
 
+    Place shippingAddress;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,7 +78,7 @@ public class Cart extends AppCompatActivity {
 
         //Firebase
         database = FirebaseDatabase.getInstance();
-        requests=database.getReference("Requests");
+        requests = database.getReference("Requests");
 
         //inisialisasi
         recyclerView = findViewById(R.id.listCart);
@@ -89,9 +94,8 @@ public class Cart extends AppCompatActivity {
             public void onClick(View view) {
 
                 if (cart.size() > 0)
-                showAlertDialog();
-                else
-                {
+                    showAlertDialog();
+                else {
                     Toast.makeText(Cart.this, "Keranjang anda kosong !!!", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -105,7 +109,7 @@ public class Cart extends AppCompatActivity {
         alertDialog.setMessage("Masukan alamat anda: ");
 
         LayoutInflater inflater = this.getLayoutInflater();
-        View order_address_comment = inflater.inflate(R.layout.order_address_comment,null);
+        View order_address_comment = inflater.inflate(R.layout.order_address_comment, null);
 
 
 //        PlaceAutocompleteFragment edtAddress = (PlaceAutocompleteFragment)getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
@@ -116,7 +120,31 @@ public class Cart extends AppCompatActivity {
 //        ((EditText)edtAddress.getView().findViewById(R.id.place_autocomplete_search_input))
 //                .setTextSize(14);
 //        //Get address dari placeautocomplete
-        final MaterialEditText edtAddress = (MaterialEditText) order_address_comment.findViewById(R.id.edtAddress);
+        //final MaterialEditText edtAddress = (MaterialEditText) order_address_comment.findViewById(R.id.edtAddress);
+
+        PlaceAutocompleteFragment edtAddress = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+        //sembunyikan fragment ketika belum mengkliknya
+        edtAddress.getView().findViewById(R.id.place_autocomplete_search_button).setVisibility(View.GONE);
+        //Atur petunjuk saat Autocomplete Edit Text
+        ((EditText) edtAddress.getView().findViewById(R.id.place_autocomplete_search_input))
+                .setHint("Masukan Alamat Anda");
+        //Atur ukuran huruf
+        ((EditText) edtAddress.getView().findViewById(R.id.place_autocomplete_search_input))
+                .setTextSize(14);
+        //Dapatkan alamat dari placeautocompleteFragment
+        edtAddress.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                shippingAddress = place;
+            }
+
+            @Override
+            public void onError(Status status) {
+                Log.e("ERROR", status.getStatusMessage());
+            }
+        });
+
+
         final MaterialEditText edtComment = (MaterialEditText) order_address_comment.findViewById(R.id.edtComment);
 
         alertDialog.setView(order_address_comment);
@@ -129,10 +157,11 @@ public class Cart extends AppCompatActivity {
                 Request request = new Request(
                         Common.currentUser.getPhone(),
                         Common.currentUser.getName(),
-                        edtAddress.getText().toString(),
+                        shippingAddress.getAddress().toString(),
                         txtTotalPrice.getText().toString(),
                         "0", //Status
                         edtComment.getText().toString(),
+                        String.format("%s,%s", shippingAddress.getLatLng().latitude, shippingAddress.getLatLng().longitude),
                         cart
                 );
 
@@ -154,7 +183,12 @@ public class Cart extends AppCompatActivity {
         alertDialog.setNegativeButton("NO", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-               dialogInterface.dismiss();
+                dialogInterface.dismiss();
+                // Hapus fragment
+                getFragmentManager().beginTransaction()
+                        .remove(getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment))
+                        .commit();
+
             }
         });
         alertDialog.show();
@@ -166,35 +200,31 @@ public class Cart extends AppCompatActivity {
         data.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot postSnapShoot:dataSnapshot.getChildren())
-                {
+                for (DataSnapshot postSnapShoot : dataSnapshot.getChildren()) {
                     Token serverToken = postSnapShoot.getValue(Token.class);
 
                     //create raw payload to send
-                    Notification notification = new Notification("Tenun NTT","Anda memiliki Order baru"+ order_number);
-                    Sender content = new Sender(serverToken.getToken(),notification);
+                    Notification notification = new Notification("Tenun NTT", "Anda memiliki Order baru" + order_number);
+                    Sender content = new Sender(serverToken.getToken(), notification);
 
                     mService.sendNotification(content)
                             .enqueue(new Callback<MyResponse>() {
                                 @Override
                                 public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
-                                    if (response.body() != null && response.body().success == 1)
-                                    {
+                                    if (response.body() != null && response.body().success == 1) {
                                         Intent orderDetail = new Intent(Cart.this, Cart.class);
                                         orderDetail.putExtra("orderId", requests.getRef().getKey());
                                         startActivity(orderDetail);
                                         Toast.makeText(Cart.this, "Terima kasih telah memesan", Toast.LENGTH_SHORT).show();
                                         finish();
-                                    }
-                                    else
-                                    {
+                                    } else {
                                         Toast.makeText(Cart.this, "Gagal !!!", Toast.LENGTH_SHORT).show();
                                     }
                                 }
 
                                 @Override
                                 public void onFailure(Call<MyResponse> call, Throwable t) {
-                                    Log.e("ERROR",t.getMessage());
+                                    Log.e("ERROR", t.getMessage());
                                 }
                             });
                 }
@@ -216,9 +246,9 @@ public class Cart extends AppCompatActivity {
         //kalkulasi total harga
 
         int total = 0;
-        for (Order order:cart)
-            total+=(Integer.parseInt(order.getPrice()))*(Integer.parseInt(order.getQuantity()));
-        Locale locale = new Locale("id","ID");
+        for (Order order : cart)
+            total += (Integer.parseInt(order.getPrice())) * (Integer.parseInt(order.getQuantity()));
+        Locale locale = new Locale("id", "ID");
         NumberFormat fmt = NumberFormat.getCurrencyInstance(locale);
 
         txtTotalPrice.setText(fmt.format(total));
@@ -238,7 +268,7 @@ public class Cart extends AppCompatActivity {
         //After that, we will delete all old data from SQLite
         new Database(this).cleanCart();
         //And finally, we will update new data from List<Order> to SQLite
-        for (Order item:cart)
+        for (Order item : cart)
             new Database(this).addToCart(item);
         //Refresh
         loadKainList();

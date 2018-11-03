@@ -19,19 +19,20 @@ import ken.tenunikatntt.Model.User;
 
 public class SignUp extends AppCompatActivity {
 
-    MaterialEditText edtPhone,edtName,edtPassword,edtSecureCode;
+    MaterialEditText edtPhone, edtName, edtPassword, edtSecureCode;
     Button btnSignUp;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
-        edtName = (MaterialEditText)findViewById(R.id.edtName);
-        edtPassword = (MaterialEditText)findViewById(R.id.edtPassword);
-        edtPhone = (MaterialEditText)findViewById(R.id.edtPhone);
-        edtSecureCode = (MaterialEditText)findViewById(R.id.edtSecureCode);
+        edtName = (MaterialEditText) findViewById(R.id.edtName);
+        edtPassword = (MaterialEditText) findViewById(R.id.edtPassword);
+        edtPhone = (MaterialEditText) findViewById(R.id.edtPhone);
+        edtSecureCode = (MaterialEditText) findViewById(R.id.edtSecureCode);
 
-        btnSignUp = (Button)findViewById(R.id.btnSignUp);
+        btnSignUp = (Button) findViewById(R.id.btnSignUp);
 
         // insialisasi Database firebase
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -42,37 +43,32 @@ public class SignUp extends AppCompatActivity {
             public void onClick(View view) {
 
                 if (Common.isConnectedToInternet(getBaseContext())) {
-                final ProgressDialog mDialog = new ProgressDialog(SignUp.this);
-                mDialog.setMessage("Please Waiting...");
-                mDialog.show();
+                    final ProgressDialog mDialog = new ProgressDialog(SignUp.this);
+                    mDialog.setMessage("Please Waiting...");
+                    mDialog.show();
 
-                table_user.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        // cek apakah user phone sudah ada atau belum
-                        if(dataSnapshot.child(edtPhone.getText().toString()).exists())
-                        {
-                            mDialog.dismiss();
-                            Toast.makeText(SignUp.this, "Nomor HP sudah terdaftar", Toast.LENGTH_SHORT).show();
+                    table_user.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            // cek apakah user phone sudah ada atau belum
+                            if (dataSnapshot.child(edtPhone.getText().toString()).exists()) {
+                                mDialog.dismiss();
+                                Toast.makeText(SignUp.this, "Nomor HP sudah terdaftar", Toast.LENGTH_SHORT).show();
+                            } else {
+                                mDialog.dismiss();
+                                User user = new User(edtName.getText().toString(), edtPassword.getText().toString(), edtSecureCode.getText().toString());
+                                table_user.child(edtPhone.getText().toString()).setValue(user);
+                                Toast.makeText(SignUp.this, "Sign Up berhasil !", Toast.LENGTH_SHORT).show();
+                                finish();
+                            }
                         }
-                        else
-                        {
-                            mDialog.dismiss();
-                            User user = new User(edtName.getText().toString(), edtPassword.getText().toString(), edtSecureCode.getText().toString());
-                            table_user.child(edtPhone.getText().toString()).setValue(user);
-                            Toast.makeText(SignUp.this, "Sign Up berhasil !", Toast.LENGTH_SHORT).show();
-                            finish();
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
                         }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-                }
-                else
-                {
+                    });
+                } else {
                     Toast.makeText(SignUp.this, "Mohon cek koneksi internet anda", Toast.LENGTH_SHORT).show();
                     return;
                 }

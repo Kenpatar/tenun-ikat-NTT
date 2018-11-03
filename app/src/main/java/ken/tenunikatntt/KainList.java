@@ -50,11 +50,11 @@ public class KainList extends AppCompatActivity {
     FirebaseDatabase database;
     DatabaseReference kainList;
 
-    String categoryId="";
-    FirebaseRecyclerAdapter<Kain,KainViewHolder> adapter;
+    String categoryId = "";
+    FirebaseRecyclerAdapter<Kain, KainViewHolder> adapter;
 
     //Search Fuctionallity
-    FirebaseRecyclerAdapter<Kain,KainViewHolder> searchAdapter;
+    FirebaseRecyclerAdapter<Kain, KainViewHolder> searchAdapter;
     List<String> suggestList = new ArrayList<>();
     MaterialSearchBar materialSearchBar;
 
@@ -98,7 +98,7 @@ public class KainList extends AppCompatActivity {
     @Override
     protected void onPostResume() {
         super.onPostResume();
-        if (adapter !=null)
+        if (adapter != null)
             adapter.startListening();
     }
 
@@ -129,14 +129,12 @@ public class KainList extends AppCompatActivity {
             @Override
             public void onRefresh() {
                 //Get Intens Disini
-                if(getIntent() != null)
+                if (getIntent() != null)
                     categoryId = getIntent().getStringExtra("CategoryId");
-                if(!categoryId.isEmpty() && categoryId != null)
-                {
+                if (!categoryId.isEmpty() && categoryId != null) {
                     if (Common.isConnectedToInternet(getBaseContext()))
                         loadListKain(categoryId);
-                    else
-                    {
+                    else {
                         Toast.makeText(KainList.this, "Mohon cek koneksi internet anda", Toast.LENGTH_SHORT).show();
                         return;
                     }
@@ -148,14 +146,12 @@ public class KainList extends AppCompatActivity {
             @Override
             public void run() {
                 //Get Intens Disini
-                if(getIntent() != null)
+                if (getIntent() != null)
                     categoryId = getIntent().getStringExtra("CategoryId");
-                if(!categoryId.isEmpty() && categoryId != null)
-                {
+                if (!categoryId.isEmpty() && categoryId != null) {
                     if (Common.isConnectedToInternet(getBaseContext()))
                         loadListKain(categoryId);
-                    else
-                    {
+                    else {
                         Toast.makeText(KainList.this, "Mohon cek koneksi internet anda", Toast.LENGTH_SHORT).show();
                         return;
                     }
@@ -167,7 +163,6 @@ public class KainList extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-
 
 
         //Search
@@ -188,7 +183,7 @@ public class KainList extends AppCompatActivity {
                 //ketika user type their text, we will change suggest list
 
                 List<String> suggest = new ArrayList<>();
-                for (String search:suggestList) //Loop in suggest list
+                for (String search : suggestList) //Loop in suggest list
                 {
                     if (search.toLowerCase().contains(materialSearchBar.getText().toLowerCase()))
                         suggest.add(search);
@@ -232,7 +227,7 @@ public class KainList extends AppCompatActivity {
         Query searchByName = kainList.orderByChild("Name").equalTo(text.toString());
         //Create Option with query
         FirebaseRecyclerOptions<Kain> kainOptions = new FirebaseRecyclerOptions.Builder<Kain>()
-                .setQuery(searchByName,Kain.class)
+                .setQuery(searchByName, Kain.class)
                 .build();
 
         searchAdapter = new FirebaseRecyclerAdapter<Kain, KainViewHolder>(kainOptions) {
@@ -247,8 +242,8 @@ public class KainList extends AppCompatActivity {
                     @Override
                     public void onClick(View view, int position, boolean isLongClick) {
                         // start aktivity baru
-                        Intent kainDetail = new Intent(KainList.this,KainDetail.class);
-                        kainDetail.putExtra("menuId",adapter.getRef(position).getKey()); // Kirim Kain Id ke activity baru
+                        Intent kainDetail = new Intent(KainList.this, KainDetail.class);
+                        kainDetail.putExtra("menuId", adapter.getRef(position).getKey()); // Kirim Kain Id ke activity baru
                         startActivity(kainDetail);
                     }
                 });
@@ -258,7 +253,7 @@ public class KainList extends AppCompatActivity {
             @Override
             public KainViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View itemView = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.kain_item,parent,false);
+                        .inflate(R.layout.kain_item, parent, false);
                 return new KainViewHolder(itemView);
             }
         };
@@ -272,8 +267,7 @@ public class KainList extends AppCompatActivity {
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        for(DataSnapshot postSnapshot:dataSnapshot.getChildren())
-                        {
+                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                             Kain item = postSnapshot.getValue(Kain.class);
                             suggestList.add(item.getName()); //add name of Kain to suggest List
                         }
@@ -293,7 +287,7 @@ public class KainList extends AppCompatActivity {
         Query searchByName = kainList.orderByChild("menuId").equalTo(categoryId);
         //Create Option with query
         FirebaseRecyclerOptions<Kain> kainOptions = new FirebaseRecyclerOptions.Builder<Kain>()
-                .setQuery(searchByName,Kain.class)
+                .setQuery(searchByName, Kain.class)
                 .build();
 
 
@@ -301,7 +295,7 @@ public class KainList extends AppCompatActivity {
             @Override
             protected void onBindViewHolder(@NonNull final KainViewHolder viewHolder, final int position, @NonNull final Kain model) {
                 viewHolder.kain_name.setText(model.getName());
-                viewHolder.kain_price.setText(String.format("Rp %s",model.getPrice().toString()));
+                viewHolder.kain_price.setText(String.format("Rp %s", model.getPrice().toString()));
                 Picasso.with(getBaseContext()).load(model.getImage())
                         .into(viewHolder.kain_image);
 
@@ -340,21 +334,17 @@ public class KainList extends AppCompatActivity {
                 viewHolder.fav_image.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if (!localDB.isFavorite(adapter.getRef(position).getKey()))
-                        {
+                        if (!localDB.isFavorite(adapter.getRef(position).getKey())) {
                             localDB.addToFavorites(adapter.getRef(position).getKey());
                             viewHolder.fav_image.setImageResource(R.drawable.ic_favorite_black_24dp);
-                            Toast.makeText(KainList.this, ""+model.getName()+" Ditambahkan ke Favorit", Toast.LENGTH_SHORT).show();
-                        }
-                        else
-                        {
+                            Toast.makeText(KainList.this, "" + model.getName() + " Ditambahkan ke Favorit", Toast.LENGTH_SHORT).show();
+                        } else {
                             localDB.removeFromFavorites(adapter.getRef(position).getKey());
                             viewHolder.fav_image.setImageResource(R.drawable.ic_favorite_border_black_24dp);
-                            Toast.makeText(KainList.this, ""+model.getName()+ " Dihapus dari Favorit", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(KainList.this, "" + model.getName() + " Dihapus dari Favorit", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
-
 
 
                 final Kain local = model;
@@ -362,8 +352,8 @@ public class KainList extends AppCompatActivity {
                     @Override
                     public void onClick(View view, int position, boolean isLongClick) {
                         // start aktivity baru
-                        Intent kainDetail = new Intent(KainList.this,KainDetail.class);
-                        kainDetail.putExtra("menuId",adapter.getRef(position).getKey()); // Kirim Kain Id ke activity baru
+                        Intent kainDetail = new Intent(KainList.this, KainDetail.class);
+                        kainDetail.putExtra("menuId", adapter.getRef(position).getKey()); // Kirim Kain Id ke activity baru
                         startActivity(kainDetail);
                     }
                 });
@@ -372,7 +362,7 @@ public class KainList extends AppCompatActivity {
             @Override
             public KainViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View itemView = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.kain_item,parent,false);
+                        .inflate(R.layout.kain_item, parent, false);
                 return new KainViewHolder(itemView);
             }
         };
@@ -386,6 +376,12 @@ public class KainList extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         adapter.stopListening();
-//        searchAdapter.stopListening();
+        //searchAdapter.stopListening();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
     }
 }
