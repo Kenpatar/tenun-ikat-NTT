@@ -4,22 +4,20 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
@@ -63,12 +61,11 @@ public class Home extends AppCompatActivity
     RecyclerView recyler_menu;
     RecyclerView.LayoutManager layoutManager;
 
-    FirebaseRecyclerAdapter<Category,MenuViewHolder>adapter;
+    FirebaseRecyclerAdapter<Category, MenuViewHolder> adapter;
 
     SwipeRefreshLayout swipeRefreshLayout;
 
     CounterFab fab;
-
 
 
     @Override
@@ -86,7 +83,7 @@ public class Home extends AppCompatActivity
                 android.R.color.holo_green_dark,
                 android.R.color.holo_orange_dark,
                 android.R.color.holo_blue_dark
-                );
+        );
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -121,23 +118,20 @@ public class Home extends AppCompatActivity
         category = database.getReference("Category");
 
 
-
-
         Paper.init(this);
-
 
         fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent cartIntent = new Intent(Home.this,Cart.class);
+                Intent cartIntent = new Intent(Home.this, Cart.class);
                 startActivity(cartIntent);
             }
         });
 
         fab.setCount(new Database(this).getCountCart());
 
-        DrawerLayout drawer =  findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
@@ -153,11 +147,10 @@ public class Home extends AppCompatActivity
 
         //load menu
         recyler_menu = findViewById(R.id.recycler_menu);
-        recyler_menu.setLayoutManager(new GridLayoutManager(this,2));
+        recyler_menu.setLayoutManager(new GridLayoutManager(this, 2));
         LayoutAnimationController controller = AnimationUtils.loadLayoutAnimation(recyler_menu.getContext(),
                 R.anim.layout_fall_down);
         recyler_menu.setLayoutAnimation(controller);
-
 
 
         updateToken(FirebaseInstanceId.getInstance().getToken());
@@ -176,27 +169,23 @@ public class Home extends AppCompatActivity
     private void updateToken(String token) {
         FirebaseDatabase db = FirebaseDatabase.getInstance();
         DatabaseReference tokens = db.getReference("Tokens");
-        Token data = new Token(token,false); //false because this token send from client app
+        Token data = new Token(token, false); //false because this token send from client app
         tokens.child(Common.currentUser.getPhone()).setValue(data);
     }
 
 
-
-
     private void loadMenu() {
 
-
         FirebaseRecyclerOptions<Category> options = new FirebaseRecyclerOptions.Builder<Category>()
-                .setQuery(category,Category.class)
+                .setQuery(category, Category.class)
                 .build();
-
 
         adapter = new FirebaseRecyclerAdapter<Category, MenuViewHolder>(options) {
             @NonNull
             @Override
             public MenuViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View itemView = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.menu_item,parent,false);
+                        .inflate(R.layout.menu_item, parent, false);
                 return new MenuViewHolder(itemView);
             }
 
@@ -211,9 +200,9 @@ public class Home extends AppCompatActivity
                     @Override
                     public void onClick(View view, int position, boolean isLongClick) {
                         //Get CategoryId dan kirim ke activity baru
-                        Intent kainList = new Intent(Home.this,KainList.class);
+                        Intent kainList = new Intent(Home.this, KainList.class);
                         //Karena CategoryId is Key, jadi hanya perlu key this item
-                        kainList.putExtra("CategoryId",adapter.getRef(position).getKey());
+                        kainList.putExtra("CategoryId", adapter.getRef(position).getKey());
                         startActivity(kainList);
                     }
                 });
@@ -249,7 +238,7 @@ public class Home extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         FirebaseRecyclerOptions<Category> options = new FirebaseRecyclerOptions.Builder<Category>()
-                .setQuery(category,Category.class)
+                .setQuery(category, Category.class)
                 .build();
 
     }
@@ -278,11 +267,11 @@ public class Home extends AppCompatActivity
         if (id == R.id.nav_menu) {
 
         } else if (id == R.id.nav_cart) {
-            Intent cartIntent = new Intent(Home.this,Cart.class);
+            Intent cartIntent = new Intent(Home.this, Cart.class);
             startActivity(cartIntent);
 
         } else if (id == R.id.nav_orders) {
-            Intent orderIntent = new Intent(Home.this,OrderStatus.class);
+            Intent orderIntent = new Intent(Home.this, OrderStatus.class);
             startActivity(orderIntent);
 
         } else if (id == R.id.nav_log_out) {
@@ -291,13 +280,11 @@ public class Home extends AppCompatActivity
             Paper.book().destroy();
 
             //Logout
-            Intent signIn = new Intent(Home.this,SignIn.class);
+            Intent signIn = new Intent(Home.this, SignIn.class);
             signIn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(signIn);
 
-        }
-        else if (id == R.id.nav_change_pwd)
-        {
+        } else if (id == R.id.nav_change_pwd) {
             showChangePasswordDialog();
         }
 
@@ -312,7 +299,7 @@ public class Home extends AppCompatActivity
         alertDialog.setMessage("Masukan informasi lengkap");
 
         LayoutInflater inflater = LayoutInflater.from(this);
-        View layout_pwd = inflater.inflate(R.layout.change_password_layout,null);
+        View layout_pwd = inflater.inflate(R.layout.change_password_layout, null);
 
         final MaterialEditText edtPassword = layout_pwd.findViewById(R.id.edtPassword);
         final MaterialEditText edtNewPassword = layout_pwd.findViewById(R.id.edtNewPassword);
@@ -331,13 +318,11 @@ public class Home extends AppCompatActivity
                 waitingDialog.show();
 
                 //Check old password
-                if (edtPassword.getText().toString().equals(Common.currentUser.getPassword()))
-                {
+                if (edtPassword.getText().toString().equals(Common.currentUser.getPassword())) {
                     //Check new password and repeat password
-                   if (edtNewPassword.getText().toString().equals(edtRepeatPassword.getText().toString()))
-                    {
-                        Map<String,Object> passwordUpdate = new HashMap<>();
-                        passwordUpdate.put("password",edtNewPassword.getText().toString());
+                    if (edtNewPassword.getText().toString().equals(edtRepeatPassword.getText().toString())) {
+                        Map<String, Object> passwordUpdate = new HashMap<>();
+                        passwordUpdate.put("password", edtNewPassword.getText().toString());
 
                         //Make Update
                         DatabaseReference user = FirebaseDatabase.getInstance().getReference("User");
@@ -356,15 +341,11 @@ public class Home extends AppCompatActivity
                                         Toast.makeText(Home.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                                     }
                                 });
-                      }
-                    else
-                   {
-                       waitingDialog.dismiss();
-                       Toast.makeText(Home.this, "Password baru tidak cocok", Toast.LENGTH_SHORT).show();
-                   }
-                }
-                else
-                {
+                    } else {
+                        waitingDialog.dismiss();
+                        Toast.makeText(Home.this, "Password baru tidak cocok", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
                     waitingDialog.dismiss();
                     Toast.makeText(Home.this, "Password lama salah", Toast.LENGTH_SHORT).show();
                 }

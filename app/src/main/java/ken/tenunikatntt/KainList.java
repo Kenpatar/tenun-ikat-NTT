@@ -119,7 +119,6 @@ public class KainList extends AppCompatActivity {
         localDB = new Database(this);
 
 
-
         swipeRefreshLayout = findViewById(R.id.swipe_layout);
         swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary,
                 android.R.color.holo_green_dark,

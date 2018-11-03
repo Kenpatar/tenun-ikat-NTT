@@ -17,6 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -106,8 +107,17 @@ public class Cart extends AppCompatActivity {
         LayoutInflater inflater = this.getLayoutInflater();
         View order_address_comment = inflater.inflate(R.layout.order_address_comment,null);
 
+
+//        PlaceAutocompleteFragment edtAddress = (PlaceAutocompleteFragment)getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+//        // Sembunyikan ikon search sebelum fragment
+//        edtAddress.getView().findViewById(R.id.place_autocomplete_search_button).setVisibility(View.GONE);
+//        ((EditText)edtAddress.getView().findViewById(R.id.place_autocomplete_search_input))
+//                .setHint("Masukan alamat anda");
+//        ((EditText)edtAddress.getView().findViewById(R.id.place_autocomplete_search_input))
+//                .setTextSize(14);
+//        //Get address dari placeautocomplete
         final MaterialEditText edtAddress = (MaterialEditText) order_address_comment.findViewById(R.id.edtAddress);
-        final MaterialEditText edtComment = (MaterialEditText  ) order_address_comment.findViewById(R.id.edtComment);
+        final MaterialEditText edtComment = (MaterialEditText) order_address_comment.findViewById(R.id.edtComment);
 
         alertDialog.setView(order_address_comment);
         alertDialog.setIcon(R.drawable.ic_shopping_cart_black_24dp);

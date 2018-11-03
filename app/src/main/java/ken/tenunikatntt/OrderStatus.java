@@ -1,6 +1,5 @@
 package ken.tenunikatntt;
 
-import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,7 +8,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -18,19 +16,14 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 
 import ken.tenunikatntt.Common.Common;
-import ken.tenunikatntt.Interface.ItemClickListener;
-import ken.tenunikatntt.Model.Kain;
 import ken.tenunikatntt.Model.Request;
-import ken.tenunikatntt.ViewHolder.KainViewHolder;
 import ken.tenunikatntt.ViewHolder.OrderViewHolder;
 
 public class OrderStatus extends AppCompatActivity {
 
     public RecyclerView recyclerView;
     public RecyclerView.LayoutManager layoutManager;
-
     FirebaseRecyclerAdapter<Request, OrderViewHolder> adapter;
-
 
     FirebaseDatabase database;
     DatabaseReference requests;
@@ -49,19 +42,24 @@ public class OrderStatus extends AppCompatActivity {
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
-        if (getIntent() == null)
+        if(getIntent()!=null)
             loadOrders(Common.currentUser.getPhone());
         else
             loadOrders(getIntent().getStringExtra("userPhone"));
     }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        adapter.startListening();
+    }
 
     private void loadOrders(String phone) {
-
-        Query getOrderByUser = requests.orderByChild("phone")
+        Query query = requests.orderByChild("phone")
                 .equalTo(phone);
 
+
         FirebaseRecyclerOptions<Request> orderOptions = new FirebaseRecyclerOptions.Builder<Request>()
-                .setQuery(getOrderByUser, Request.class)
+                .setQuery(query, Request.class)
                 .build();
 
         adapter = new FirebaseRecyclerAdapter<Request, OrderViewHolder>(orderOptions) {
@@ -80,6 +78,13 @@ public class OrderStatus extends AppCompatActivity {
                 return new OrderViewHolder(itemView);
             }
         };
+
         recyclerView.setAdapter(adapter);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        adapter.stopListening();
     }
 }
