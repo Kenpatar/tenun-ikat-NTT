@@ -51,6 +51,7 @@ public class KainDetail extends AppCompatActivity implements RatingDialogListene
 
     String kainId = "";
 
+
     FirebaseDatabase database;
     DatabaseReference Kains;
     DatabaseReference ratingTbl;

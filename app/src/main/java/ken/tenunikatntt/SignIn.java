@@ -56,7 +56,6 @@ public class SignIn extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 showForgotPwdDialog();
-
             }
         });
 
@@ -65,7 +64,6 @@ public class SignIn extends AppCompatActivity {
             public void onClick(View view) {
 
                 if (Common.isConnectedToInternet(getBaseContext())) {
-
                     //Simpan user & password
                     if (ckbRemember.isChecked()) {
                         Paper.book().write(Common.USER_KEY, edtPhone.getText().toString());

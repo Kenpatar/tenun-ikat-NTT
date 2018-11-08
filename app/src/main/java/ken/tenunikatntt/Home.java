@@ -313,7 +313,7 @@ public class Home extends AppCompatActivity
             public void onClick(DialogInterface dialogInterface, int i) {
                 //Change Password disini
 
-                //Untuk menggunakan SpotsDalog, Gunakan AlertDialog dari android.app, bukan dari v7, seperti AlertDialog diatas
+                //Untuk menggunakan SpotsDialog, Gunakan AlertDialog dari android.app, bukan dari v7, seperti AlertDialog diatas
                 final android.app.AlertDialog waitingDialog = new SpotsDialog(Home.this);
                 waitingDialog.show();
 
