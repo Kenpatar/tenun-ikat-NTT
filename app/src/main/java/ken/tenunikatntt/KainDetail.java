@@ -56,7 +56,8 @@ public class KainDetail extends AppCompatActivity implements RatingDialogListene
     DatabaseReference Kains;
     DatabaseReference ratingTbl;
 
-    Kain currentKain;
+    Kain currentKain, ID;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
