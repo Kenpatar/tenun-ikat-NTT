@@ -6,6 +6,7 @@ import android.net.NetworkInfo;
 
 import ken.tenunikatntt.Model.User;
 import ken.tenunikatntt.Remote.APIService;
+import ken.tenunikatntt.Remote.IGoogleService;
 import ken.tenunikatntt.Remote.RetrofitClient;
 
 //Created by Emilken18 on 6/10/2018.
@@ -17,10 +18,16 @@ public class Common {
     public static String PHONE_TEXT = "userPhone";
 
     private static final String BASE_URL = "https://fcm.googleapis.com/";
+    private static final String GOOGLE_API_URL = "https://maps.googleapis.com/";
 
     public static APIService getFCMService()
     {
         return RetrofitClient.getClient(BASE_URL).create(APIService.class);
+    }
+
+    public static IGoogleService getGoogleMapAPI()
+    {
+        return RetrofitClient.getGoogleClient(GOOGLE_API_URL).create(IGoogleService.class);
     }
 
     public static String convertCodeToStatus(String status) {

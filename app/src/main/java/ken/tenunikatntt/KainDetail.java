@@ -91,7 +91,8 @@ public class KainDetail extends AppCompatActivity implements RatingDialogListene
                         currentKain.getName(),
                         numberButton.getNumber(),
                         currentKain.getPrice(),
-                        currentKain.getDiscount()
+                        currentKain.getDiscount(),
+                        currentKain.getImage()
                 ));
                 Toast.makeText(KainDetail.this, "Added to Cart", Toast.LENGTH_SHORT).show();
             }

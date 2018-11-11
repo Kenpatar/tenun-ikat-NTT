@@ -308,7 +308,8 @@ public class KainList extends AppCompatActivity {
                                 model.getName(),
                                 "1",
                                 model.getPrice(),
-                                model.getDiscount()
+                                model.getDiscount(),
+                                model.getImage()
                         ));
 
 

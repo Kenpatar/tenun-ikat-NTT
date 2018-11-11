@@ -34,6 +34,23 @@
             app:met_floatingLabel="highlight"
             app:met_primaryColor="@color/colorPrimary"
             app:met_singleLineEllipsis="true" />
+        
+        <!--<RadioGroup-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content">-->
+
+            <!--<RadioButton-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:id="@+id/rdiShipToAddress"-->
+                <!--android:text="Kirim ke alamat ini"/>-->
+            <!--<RadioButton-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:id="@+id/rdiHomeToAddress"-->
+                <!--android:text="Alamat rumah"/>-->
+
+        <!--</RadioGroup>o-->
 
     </LinearLayout>
 
