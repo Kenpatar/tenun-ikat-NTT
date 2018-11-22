@@ -7,7 +7,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -15,10 +14,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCffnGhZZG4FgYwa0ilthoJGGEciWOryg8"/>
+            android:value="AIzaSyCffnGhZZG4FgYwa0ilthoJGGEciWOryg8" />
 
         <activity android:name=".MainActivity">
             <intent-filter>
@@ -28,9 +26,8 @@
             </intent-filter>
         </activity>
 
-
-        <!--<meta-data android:name="com.facebook.sdk.AplicationId"-->
-            <!--android:value="@string/facebook_app_id"/>-->
+        <!-- <meta-data android:name="com.facebook.sdk.AplicationId" -->
+        <!-- android:value="@string/facebook_app_id"/> -->
 
         <activity android:name=".SignIn" />
         <activity android:name=".SignUp" />
@@ -43,36 +40,34 @@
         <activity android:name=".Cart" />
         <activity android:name=".OrderStatus" />
 
-        <service
-            android:name=".Service.MyFirebaseIdService">
+        <service android:name=".Service.MyFirebaseIdService">
             <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+            </intent-filter>
+        </service>
+        <service android:name=".Service.MyFirebaseMessaging">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
 
-
-        <service
-            android:name=".Service.MyFirebaseMessaging">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
-            </intent-filter>
-        </service>
-
-        <!--<provider-->
-            <!--android:authorities="com.facebook.app.FacebookContentProvider273248940062371"-->
-            <!--android:name="com.facebook.FacebookContentProvider"-->
-            <!--android:exported="true"/>-->
+        <!-- <provider -->
+        <!-- android:authorities="com.facebook.app.FacebookContentProvider273248940062371" -->
+        <!-- android:name="com.facebook.FacebookContentProvider" -->
+        <!-- android:exported="true"/> -->
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/ic_notifications_active_black_24dp" />
-        <!-- Set color used with incoming notification messages. This is used when no color is set for the incoming
-             notification message. See README(https://goo.gl/6BKBk7) for more. -->
+        <!--
+             Set color used with incoming notification messages. This is used when no color is set for the incoming
+             notification message. See README(https://goo.gl/6BKBk7) for more.
+        -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorAccent" />
 
-
+        <activity android:name=".ShowComment"></activity>
     </application>
 
 </manifest>

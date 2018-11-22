@@ -17,6 +17,8 @@ public class Common {
 
     public static String PHONE_TEXT = "userPhone";
 
+    public static final String INTENT_KAIN_ID = "KainId";
+
     private static final String BASE_URL = "https://fcm.googleapis.com/";
     private static final String GOOGLE_API_URL = "https://maps.googleapis.com/";
 

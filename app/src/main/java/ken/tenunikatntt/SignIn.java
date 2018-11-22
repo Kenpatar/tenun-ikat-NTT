@@ -52,6 +52,7 @@ public class SignIn extends AppCompatActivity {
         database = FirebaseDatabase.getInstance();
         table_user = database.getReference("User");
 
+
         txtForgotPwd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -63,59 +64,66 @@ public class SignIn extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                if (Common.isConnectedToInternet(getBaseContext())) {
-                    //Simpan user & password
-                    if (ckbRemember.isChecked()) {
-                        Paper.book().write(Common.USER_KEY, edtPhone.getText().toString());
-                        Paper.book().write(Common.PWD_KEY, edtPassword.getText().toString());
-                    }
+                if (edtPhone.getText().toString().length() == 0) {
+                    edtPhone.setError("Masukan Nomor HP");
+                } else if (edtPassword.getText().toString().length() == 0) {
+                    edtPassword.setError("Masukan password anda");
+                } else {
 
-                    final ProgressDialog mDialog = new ProgressDialog(SignIn.this);
-                    mDialog.setMessage("Please Waiting...");
-                    mDialog.show();
+                    if (Common.isConnectedToInternet(getBaseContext())) {
+                        //Simpan user & password
+                        if (ckbRemember.isChecked()) {
+                            Paper.book().write(Common.USER_KEY, edtPhone.getText().toString());
+                            Paper.book().write(Common.PWD_KEY, edtPassword.getText().toString());
+                        }
 
-                    table_user.addListenerForSingleValueEvent(new ValueEventListener() {
+                        final ProgressDialog mDialog = new ProgressDialog(SignIn.this);
+                        mDialog.setMessage("Please Waiting...");
+                        mDialog.show();
+
+                        table_user.addListenerForSingleValueEvent(new ValueEventListener() {
 
 
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
 
-                            //cek Database jika belum ada
-                            if (dataSnapshot.child(edtPhone.getText().toString()).exists()) {
-                                // Get informasi user
-                                mDialog.dismiss();
+                                //cek Database jika belum ada
+                                if (dataSnapshot.child(edtPhone.getText().toString()).exists()) {
+                                    // Get informasi user
+                                    mDialog.dismiss();
 
-                                //Panggil data No HP dan Password dari User di firebase
-                                User user = dataSnapshot.child(edtPhone.getText().toString()).getValue(User.class);
-                                user.setPhone(edtPhone.getText().toString()); //set Phone
-                                if (user.getPassword().equals(edtPassword.getText().toString())) {
-                                    {
-                                        Intent homeIntent = new Intent(SignIn.this, Home.class);
-                                        Common.currentUser = user;
-                                        startActivity(homeIntent);
-                                        finish();
+                                    //Panggil data No HP dan Password dari User di firebase
+                                    User user = dataSnapshot.child(edtPhone.getText().toString()).getValue(User.class);
+                                    user.setPhone(edtPhone.getText().toString()); //set Phone
+                                    if (user.getPassword().equals(edtPassword.getText().toString())) {
+                                        {
+                                            Intent homeIntent = new Intent(SignIn.this, Home.class);
+                                            Common.currentUser = user;
+                                            startActivity(homeIntent);
+                                            finish();
 
-                                        table_user.removeEventListener(this);
+                                            table_user.removeEventListener(this);
 
+                                        }
+                                    } else {
+                                        Toast.makeText(SignIn.this, "Password salah !!!", Toast.LENGTH_SHORT).show();
                                     }
                                 } else {
-                                    Toast.makeText(SignIn.this, "Password salah !!!", Toast.LENGTH_SHORT).show();
+                                    mDialog.dismiss();
+                                    Toast.makeText(SignIn.this, "User tidak ada di Database ", Toast.LENGTH_SHORT).show();
                                 }
-                            } else {
-                                mDialog.dismiss();
-                                Toast.makeText(SignIn.this, "User tidak ada di Database ", Toast.LENGTH_SHORT).show();
                             }
-                        }
 
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
 
-                        }
-                    });
+                            }
+                        });
 
-                } else {
-                    Toast.makeText(SignIn.this, "Mohon cek koneksi internet anda", Toast.LENGTH_SHORT).show();
-                    return;
+                    } else {
+                        Toast.makeText(SignIn.this, "Mohon cek koneksi internet anda", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                 }
             }
         });

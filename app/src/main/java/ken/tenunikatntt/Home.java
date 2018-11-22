@@ -3,6 +3,7 @@ package ken.tenunikatntt;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.FontRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -25,13 +26,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.andremion.counterfab.CounterFab;
+import com.daimajia.slider.library.Animations.DescriptionAnimation;
+import com.daimajia.slider.library.SliderLayout;
+import com.daimajia.slider.library.SliderTypes.BaseSliderView;
+import com.daimajia.slider.library.SliderTypes.TextSliderView;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.squareup.picasso.Picasso;
@@ -44,6 +52,7 @@ import io.paperdb.Paper;
 import ken.tenunikatntt.Common.Common;
 import ken.tenunikatntt.Database.Database;
 import ken.tenunikatntt.Interface.ItemClickListener;
+import ken.tenunikatntt.Model.Banner;
 import ken.tenunikatntt.Model.Category;
 import ken.tenunikatntt.Model.Token;
 import ken.tenunikatntt.ViewHolder.MenuViewHolder;
@@ -67,11 +76,16 @@ public class Home extends AppCompatActivity
 
     CounterFab fab;
 
+    //slider
+    HashMap<String,String> image_list;
+    SliderLayout mSlider;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(activity_home);
+
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("Menu");
@@ -154,6 +168,73 @@ public class Home extends AppCompatActivity
 
 
         updateToken(FirebaseInstanceId.getInstance().getToken());
+
+        //Setup slider
+        //Fungsi ini harus dipaanggil setelah init databse firebase
+        setupSlider();
+
+    }
+
+    private void setupSlider() {
+        mSlider = findViewById(R.id.slider);
+        image_list = new HashMap<>();
+
+        final DatabaseReference banners = database.getReference("Banner");
+
+        banners.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                for (DataSnapshot postSnapShot:dataSnapshot.getChildren())
+                {
+                    Banner banner = postSnapShot.getValue(Banner.class);
+                    // kita akan menampilkan String nama dan id seperti
+                    // Kain 01 ==> dan menggunakan Kain untuk deskripsi, 01 untuk id saat diklik
+                    image_list.put(banner.getName()+"_"+banner.getId(),banner.getImage());
+                }
+                for (String key:image_list.keySet())
+                {
+                    String[] keySplit = key.split("_");
+                    String nameOfKain = keySplit[0];
+                    String idOfKain = keySplit[1];
+
+                    //create slider
+                    final TextSliderView textSliderView = new TextSliderView(getBaseContext());
+                    textSliderView
+                            .description(nameOfKain)
+                            .image(image_list.get(key))
+                            .setScaleType(BaseSliderView.ScaleType.Fit)
+                            .setOnSliderClickListener(new BaseSliderView.OnSliderClickListener() {
+                                @Override
+                                public void onSliderClick(BaseSliderView slider) {
+                                    Intent intent = new Intent(Home.this,KainDetail.class);
+                                    //kita akan mengirim kain id ke KainDetail
+                                    intent.putExtras(textSliderView.getBundle());
+                                    startActivity(intent);
+                                }
+                            });
+                    // tambah extra bundle
+                    textSliderView.bundle(new Bundle());
+                    textSliderView.getBundle().putString("menuId",idOfKain);
+
+                    mSlider.addSlider(textSliderView);
+
+                    //hapus even setelah selesai
+                    banners.removeEventListener(this);
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+        //Pengaturan animasi slide show banner
+        mSlider.setPresetTransformer(SliderLayout.Transformer.Background2Foreground);
+        mSlider.setPresetIndicator(SliderLayout.PresetIndicators.Center_Bottom);
+        mSlider.setCustomAnimation(new DescriptionAnimation());
+        mSlider.setDuration(4000);
     }
 
     //ctrl+O
@@ -222,7 +303,10 @@ public class Home extends AppCompatActivity
     protected void onStop() {
         super.onStop();
         adapter.stopListening();
+        mSlider.stopAutoCycle();
     }
+
+
 
     @Override
     public void onBackPressed() {
@@ -237,10 +321,7 @@ public class Home extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        FirebaseRecyclerOptions<Category> options = new FirebaseRecyclerOptions.Builder<Category>()
-                .setQuery(category, Category.class)
-                .build();
-
+        loadMenu();
     }
 
     @Override

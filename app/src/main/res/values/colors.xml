@@ -4,7 +4,9 @@
     <color name="colorPrimaryDark">#00251a</color>
     <color name="colorAccent">#39796b</color>
     <color name="colorStar">#0c8e1c</color>
+    <color name="warna">#4A9586</color>
 
+    <color name="white">#FFFFFF</color>
     <color name="btnSignUp">#39796b</color>
     <color name="btnSignActive">#acb764</color>
 

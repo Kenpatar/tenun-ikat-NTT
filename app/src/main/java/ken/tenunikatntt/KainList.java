@@ -148,7 +148,8 @@ public class KainList extends AppCompatActivity {
                 //Get Intens Disini
                 if (getIntent() != null)
                     categoryId = getIntent().getStringExtra("CategoryId");
-                if (!categoryId.isEmpty() && categoryId != null) {
+                if (!categoryId.isEmpty() && categoryId != null)
+                {
                     if (Common.isConnectedToInternet(getBaseContext()))
                         loadListKain(categoryId);
                     else {
@@ -156,6 +157,61 @@ public class KainList extends AppCompatActivity {
                         return;
                     }
                 }
+
+
+                //Search
+                materialSearchBar = findViewById(R.id.searchBar);
+                materialSearchBar.setHint("Masukan nama kain");
+                //MaterialSearchBar.setSpeechMode(false); No need because we already define it at XML
+                loadSuggest(); //Write fuction to load Suggest from Firebase
+
+                materialSearchBar.setCardViewElevation(10);
+                materialSearchBar.addTextChangeListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        //ketika user type their text, we will change suggest list
+
+                        List<String> suggest = new ArrayList<>();
+                        for (String search : suggestList) //Loop in suggest list
+                        {
+                            if (search.toLowerCase().contains(materialSearchBar.getText().toLowerCase()))
+                                suggest.add(search);
+                        }
+                        materialSearchBar.setLastSuggestions(suggest);
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+
+                    }
+                });
+                materialSearchBar.setOnSearchActionListener(new MaterialSearchBar.OnSearchActionListener() {
+                    @Override
+                    public void onSearchStateChanged(boolean enabled) {
+                        //Ketika SearchBar ditutup
+                        //kembali ke Adapter awal
+                        if (!enabled)
+                            recyclerView.setAdapter(adapter);
+                    }
+
+                    @Override
+                    public void onSearchConfirmed(CharSequence text) {
+                        //Ketika SearchBar finish
+                        //Menampilkan hasil pencarian
+                        startSearch(text);
+                    }
+
+                    @Override
+                    public void onButtonClicked(int buttonCode) {
+
+                    }
+                });
+
             }
         });
 
@@ -164,67 +220,12 @@ public class KainList extends AppCompatActivity {
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
-
-        //Search
-        materialSearchBar = findViewById(R.id.searchBar);
-        materialSearchBar.setHint("Masukan nama kain");
-        //MaterialSearchBar.setSpeechMode(false); No need because we already define it at XML
-        loadSuggest(); //Write fuction to load Suggest from Firebase
-        materialSearchBar.setLastSuggestions(suggestList);
-        materialSearchBar.setCardViewElevation(10);
-        materialSearchBar.addTextChangeListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                //ketika user type their text, we will change suggest list
-
-                List<String> suggest = new ArrayList<>();
-                for (String search : suggestList) //Loop in suggest list
-                {
-                    if (search.toLowerCase().contains(materialSearchBar.getText().toLowerCase()))
-                        suggest.add(search);
-                }
-                materialSearchBar.setLastSuggestions(suggest);
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
-        materialSearchBar.setOnSearchActionListener(new MaterialSearchBar.OnSearchActionListener() {
-            @Override
-            public void onSearchStateChanged(boolean enabled) {
-                //Ketika SearchBar ditutup
-                //kembali ke Adapter awal
-                if (!enabled)
-                    recyclerView.setAdapter(adapter);
-            }
-
-            @Override
-            public void onSearchConfirmed(CharSequence text) {
-                //Ketika SearchBar finish
-                //Menampilkan hasil pencarian
-                startSearch(text);
-            }
-
-            @Override
-            public void onButtonClicked(int buttonCode) {
-
-            }
-        });
-
-
     }
 
 
     private void startSearch(CharSequence text) {
         //Create by name
-        Query searchByName = kainList.orderByChild("Name").equalTo(text.toString());
+        Query searchByName = kainList.orderByChild("name").equalTo(text.toString());
         //Create Option with query
         FirebaseRecyclerOptions<Kain> kainOptions = new FirebaseRecyclerOptions.Builder<Kain>()
                 .setQuery(searchByName, Kain.class)
@@ -243,7 +244,7 @@ public class KainList extends AppCompatActivity {
                     public void onClick(View view, int position, boolean isLongClick) {
                         // start aktivity baru
                         Intent kainDetail = new Intent(KainList.this, KainDetail.class);
-                        kainDetail.putExtra("menuId", adapter.getRef(position).getKey()); // Kirim Kain Id ke activity baru
+                        kainDetail.putExtra("menuId", searchAdapter.getRef(position).getKey()); // Kirim Kain Id ke activity baru
                         startActivity(kainDetail);
                     }
                 });
@@ -271,6 +272,7 @@ public class KainList extends AppCompatActivity {
                             Kain item = postSnapshot.getValue(Kain.class);
                             suggestList.add(item.getName()); //add name of Kain to suggest List
                         }
+                        materialSearchBar.setLastSuggestions(suggestList);
                     }
 
                     @Override
@@ -285,6 +287,7 @@ public class KainList extends AppCompatActivity {
 
         //Create by category id
         Query searchByName = kainList.orderByChild("menuId").equalTo(categoryId);
+        //Query searchByName = kainList.orderByChild("KainId").equalTo(categoryId);
         //Create Option with query
         FirebaseRecyclerOptions<Kain> kainOptions = new FirebaseRecyclerOptions.Builder<Kain>()
                 .setQuery(searchByName, Kain.class)

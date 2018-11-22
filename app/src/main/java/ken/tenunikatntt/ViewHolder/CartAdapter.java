@@ -49,7 +49,6 @@ class CartViewHolder extends RecyclerView.ViewHolder implements View.OnClickList
         txt_Price = itemView.findViewById(R.id.cart_item_Price);
         btn_quantity = itemView.findViewById(R.id.btn_quantity);
         cart_image = itemView.findViewById(R.id.cart_image);
-
         itemView.setOnClickListener(this);
 
         itemView.setOnCreateContextMenuListener(this);
@@ -93,6 +92,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartViewHolder> {
                 .resize(70,70)
                 .centerCrop()
                 .into(holder.cart_image);
+
 
         holder.btn_quantity.setNumber(listData.get(position).getQuantity());
         holder.btn_quantity.setOnValueChangeListener(new ElegantNumberButton.OnValueChangeListener() {

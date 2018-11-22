@@ -1,5 +1,6 @@
 package ken.tenunikatntt;
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -14,6 +15,8 @@ import android.widget.Toast;
 
 import com.andremion.counterfab.CounterFab;
 import com.cepheuen.elegantnumberbutton.view.ElegantNumberButton;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -30,6 +33,7 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 
+import info.hoang8f.widget.FButton;
 import ken.tenunikatntt.Common.Common;
 import ken.tenunikatntt.Database.Database;
 import ken.tenunikatntt.Model.Kain;
@@ -56,13 +60,25 @@ public class KainDetail extends AppCompatActivity implements RatingDialogListene
     DatabaseReference Kains;
     DatabaseReference ratingTbl;
 
-    Kain currentKain, ID;
+    Kain currentKain;
+    FButton btnShowComment;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_kain_detail);
+
+        // tampilkan komentar
+        btnShowComment = (FButton) findViewById(R.id.btnShowComment);
+        btnShowComment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(KainDetail.this,ShowComment.class);
+                intent.putExtra(Common.INTENT_KAIN_ID,kainId);
+                startActivity(intent);
+            }
+        });
 
         // Firebase
         database = FirebaseDatabase.getInstance();
@@ -111,6 +127,7 @@ public class KainDetail extends AppCompatActivity implements RatingDialogListene
         // get kain Id from Intent
         if (getIntent() != null) {
             kainId = getIntent().getStringExtra("menuId");
+            //kainId = getIntent().getStringExtra("kainId");
             if (kainId != null && !kainId.isEmpty()) {
                 if (Common.isConnectedToInternet(getBaseContext())) {
                     getDetailKain(kainId);
@@ -201,6 +218,18 @@ public class KainDetail extends AppCompatActivity implements RatingDialogListene
                 kainId,
                 String.valueOf(value),
                 comments);
+
+        //Fix user can't rate multiple time
+        ratingTbl.push()
+                .setValue(rating)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Toast.makeText(KainDetail.this, "Terima kasih sudah memberi masukan !!!", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+        /*
         ratingTbl.child(Common.currentUser.getPhone()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -219,7 +248,7 @@ public class KainDetail extends AppCompatActivity implements RatingDialogListene
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
             }
-        });
+        }); */
     }
 
     @Override
