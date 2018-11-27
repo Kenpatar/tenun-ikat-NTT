@@ -103,6 +103,7 @@ public class KainDetail extends AppCompatActivity implements RatingDialogListene
             @Override
             public void onClick(View view) {
                 new Database(getBaseContext()).addToCart(new Order(
+                        Common.currentUser.getPhone(),
                         kainId,
                         currentKain.getName(),
                         numberButton.getNumber(),
@@ -113,7 +114,7 @@ public class KainDetail extends AppCompatActivity implements RatingDialogListene
                 Toast.makeText(KainDetail.this, "Added to Cart", Toast.LENGTH_SHORT).show();
             }
         });
-        btnCart.setCount(new Database(this).getCountCart());
+        btnCart.setCount(new Database(this).getCountCart(Common.currentUser.getPhone()));
 
         kain_description = findViewById(R.id.kain_description);
         kain_name = findViewById(R.id.kain_name);

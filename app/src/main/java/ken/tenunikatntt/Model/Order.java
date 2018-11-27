@@ -5,7 +5,7 @@ package ken.tenunikatntt.Model;
  */
 
 public class Order {
-    private int ID;
+    private String UserPhone;
     private String ProductId;
     private String ProductName;
     private String Quantity;
@@ -16,8 +16,8 @@ public class Order {
     public Order() {
     }
 
-    public Order(String productId, String productName, String quantity, String price, String discount, String image) {
-
+    public Order(String userPhone, String productId, String productName, String quantity, String price, String discount, String image) {
+        UserPhone = userPhone;
         ProductId = productId;
         ProductName = productName;
         Quantity = quantity;
@@ -26,19 +26,13 @@ public class Order {
         Image = image;
     }
 
-    public Order(int ID, String productId, String productName, String quantity, String price, String discount, String image) {
-        this.ID = ID;
-        ProductId = productId;
-        ProductName = productName;
-        Quantity = quantity;
-        Price = price;
-        Discount = discount;
-        Image = image;
+    public String getUserPhone() {
+        return UserPhone;
     }
 
-    public int getID() { return ID; }
-
-    public void setID(int ID) { this.ID = ID; }
+    public void setUserPhone(String userPhone) {
+        UserPhone = userPhone;
+    }
 
     public String getProductId() {
         return ProductId;
@@ -80,7 +74,11 @@ public class Order {
         Discount = discount;
     }
 
-    public String getImage() { return Image; }
+    public String getImage() {
+        return Image;
+    }
 
-    public void setImage(String image) { Image = image; }
+    public void setImage(String image) {
+        Image = image;
+    }
 }

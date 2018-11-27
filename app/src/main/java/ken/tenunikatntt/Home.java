@@ -3,7 +3,6 @@ package ken.tenunikatntt;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.FontRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -15,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
+import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +31,7 @@ import com.daimajia.slider.library.Animations.DescriptionAnimation;
 import com.daimajia.slider.library.SliderLayout;
 import com.daimajia.slider.library.SliderTypes.BaseSliderView;
 import com.daimajia.slider.library.SliderTypes.TextSliderView;
+import com.facebook.accountkit.AccountKit;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -41,6 +43,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.squareup.picasso.Picasso;
 
@@ -77,7 +80,7 @@ public class Home extends AppCompatActivity
     CounterFab fab;
 
     //slider
-    HashMap<String,String> image_list;
+    HashMap<String, String> image_list;
     SliderLayout mSlider;
 
 
@@ -143,7 +146,7 @@ public class Home extends AppCompatActivity
             }
         });
 
-        fab.setCount(new Database(this).getCountCart());
+        fab.setCount(new Database(this).getCountCart(Common.currentUser.getPhone()));
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -185,15 +188,13 @@ public class Home extends AppCompatActivity
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                for (DataSnapshot postSnapShot:dataSnapshot.getChildren())
-                {
+                for (DataSnapshot postSnapShot : dataSnapshot.getChildren()) {
                     Banner banner = postSnapShot.getValue(Banner.class);
                     // kita akan menampilkan String nama dan id seperti
                     // Kain 01 ==> dan menggunakan Kain untuk deskripsi, 01 untuk id saat diklik
-                    image_list.put(banner.getName()+"_"+banner.getId(),banner.getImage());
+                    image_list.put(banner.getName() + "_" + banner.getId(), banner.getImage());
                 }
-                for (String key:image_list.keySet())
-                {
+                for (String key : image_list.keySet()) {
                     String[] keySplit = key.split("_");
                     String nameOfKain = keySplit[0];
                     String idOfKain = keySplit[1];
@@ -207,7 +208,7 @@ public class Home extends AppCompatActivity
                             .setOnSliderClickListener(new BaseSliderView.OnSliderClickListener() {
                                 @Override
                                 public void onSliderClick(BaseSliderView slider) {
-                                    Intent intent = new Intent(Home.this,KainDetail.class);
+                                    Intent intent = new Intent(Home.this, KainDetail.class);
                                     //kita akan mengirim kain id ke KainDetail
                                     intent.putExtras(textSliderView.getBundle());
                                     startActivity(intent);
@@ -215,7 +216,7 @@ public class Home extends AppCompatActivity
                             });
                     // tambah extra bundle
                     textSliderView.bundle(new Bundle());
-                    textSliderView.getBundle().putString("menuId",idOfKain);
+                    textSliderView.getBundle().putString("menuId", idOfKain);
 
                     mSlider.addSlider(textSliderView);
 
@@ -243,7 +244,7 @@ public class Home extends AppCompatActivity
     @Override
     protected void onPostResume() {
         super.onPostResume();
-        fab.setCount(new Database(this).getCountCart());
+        fab.setCount(new Database(this).getCountCart(Common.currentUser.getPhone()));
 
     }
 
@@ -307,7 +308,6 @@ public class Home extends AppCompatActivity
     }
 
 
-
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -358,15 +358,18 @@ public class Home extends AppCompatActivity
         } else if (id == R.id.nav_log_out) {
 
             //Delete Remember user & Password
-            Paper.book().destroy();
+            AccountKit.logOut();
 
             //Logout
-            Intent signIn = new Intent(Home.this, SignIn.class);
+            Intent signIn = new Intent(Home.this, MainActivity.class);
             signIn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(signIn);
 
-        } else if (id == R.id.nav_change_pwd) {
+        } else if (id == R.id.nav_update_name) {
             showChangePasswordDialog();
+
+        } else if (id == R.id.nav_setting) {
+            showSettingDialog();
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -374,22 +377,60 @@ public class Home extends AppCompatActivity
         return true;
     }
 
+    private void showSettingDialog() {
+
+        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(Home.this);
+        alertDialog.setTitle("Pengaturan");
+
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View layout_setting = inflater.inflate(R.layout.setting_layout, null);
+
+        final CheckBox ckb_subscribe_new = (CheckBox) layout_setting.findViewById(R.id.ckb_sub_new);
+        // Tambah kode untuk mengingat Checkbox status
+        Paper.init(this);
+        String isSubscribe = Paper.book().read("sub_new");
+        if (isSubscribe == null || TextUtils.isEmpty(isSubscribe) || isSubscribe.equals("false"))
+            ckb_subscribe_new.setChecked(false);
+        else
+            ckb_subscribe_new.setChecked(true);
+
+        alertDialog.setView(layout_setting);
+
+        //Button
+        alertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+
+                if (ckb_subscribe_new.isChecked()) {
+                    FirebaseMessaging.getInstance().subscribeToTopic(Common.topicName);
+                    // Tulis Nilainya
+                    Paper.book().write("sub_new", "true");
+                } else {
+                    FirebaseMessaging.getInstance().unsubscribeFromTopic(Common.topicName);
+                    // Tulis Nilainya
+                    Paper.book().write("sub_new", "false");
+                }
+            }
+        });
+        alertDialog.show();
+    }
+
     private void showChangePasswordDialog() {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(Home.this);
-        alertDialog.setTitle("Ubah Password");
+        alertDialog.setTitle("Update Nama");
         alertDialog.setMessage("Masukan informasi lengkap");
 
         LayoutInflater inflater = LayoutInflater.from(this);
-        View layout_pwd = inflater.inflate(R.layout.change_password_layout, null);
+        View layout_name = inflater.inflate(R.layout.update_name_layout, null);
 
-        final MaterialEditText edtPassword = layout_pwd.findViewById(R.id.edtPassword);
-        final MaterialEditText edtNewPassword = layout_pwd.findViewById(R.id.edtNewPassword);
-        final MaterialEditText edtRepeatPassword = layout_pwd.findViewById(R.id.edtRepeatPassword);
+        final MaterialEditText edtName = layout_name.findViewById(R.id.edtName);
 
-        alertDialog.setView(layout_pwd);
+
+        alertDialog.setView(layout_name);
 
         //Button
-        alertDialog.setPositiveButton("UBAH", new DialogInterface.OnClickListener() {
+        alertDialog.setPositiveButton("UPDATE", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 //Change Password disini
@@ -398,38 +439,25 @@ public class Home extends AppCompatActivity
                 final android.app.AlertDialog waitingDialog = new SpotsDialog(Home.this);
                 waitingDialog.show();
 
-                //Check old password
-                if (edtPassword.getText().toString().equals(Common.currentUser.getPassword())) {
-                    //Check new password and repeat password
-                    if (edtNewPassword.getText().toString().equals(edtRepeatPassword.getText().toString())) {
-                        Map<String, Object> passwordUpdate = new HashMap<>();
-                        passwordUpdate.put("password", edtNewPassword.getText().toString());
+                //Update Nama
+                Map<String, Object> update_name = new HashMap<>();
+                update_name.put("name", edtName.getText().toString());
 
-                        //Make Update
-                        DatabaseReference user = FirebaseDatabase.getInstance().getReference("User");
-                        user.child(Common.currentUser.getPhone())
-                                .updateChildren(passwordUpdate)
-                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        waitingDialog.dismiss();
-                                        Toast.makeText(Home.this, "Password telah diubah", Toast.LENGTH_SHORT).show();
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(Home.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                    } else {
-                        waitingDialog.dismiss();
-                        Toast.makeText(Home.this, "Password baru tidak cocok", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    waitingDialog.dismiss();
-                    Toast.makeText(Home.this, "Password lama salah", Toast.LENGTH_SHORT).show();
-                }
+                FirebaseDatabase.getInstance()
+                        .getReference("User")
+                        .child(Common.currentUser.getPhone())
+                        .updateChildren(update_name)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                //Dismiss Dialog
+                                waitingDialog.dismiss();
+                                if (task.isSuccessful())
+                                    Toast.makeText(Home.this, "Nama telah diupdate", Toast.LENGTH_SHORT).show();
+
+                            }
+                        });
+
 
             }
         });

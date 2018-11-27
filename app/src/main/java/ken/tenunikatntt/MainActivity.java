@@ -1,10 +1,12 @@
 package ken.tenunikatntt;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
@@ -16,6 +18,16 @@ import android.widget.Toast;
 
 //import com.facebook.FacebookSdk;
 //import com.facebook.appevents.AppEventsLogger;
+import com.facebook.accountkit.Account;
+import com.facebook.accountkit.AccountKit;
+import com.facebook.accountkit.AccountKitCallback;
+import com.facebook.accountkit.AccountKitError;
+import com.facebook.accountkit.AccountKitLoginResult;
+import com.facebook.accountkit.ui.AccountKitActivity;
+import com.facebook.accountkit.ui.AccountKitConfiguration;
+import com.facebook.accountkit.ui.LoginType;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -25,50 +37,96 @@ import com.google.firebase.database.ValueEventListener;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import dmax.dialog.SpotsDialog;
 import io.paperdb.Paper;
 import ken.tenunikatntt.Common.Common;
 import ken.tenunikatntt.Model.User;
 
 public class MainActivity extends AppCompatActivity {
-    Button btnSignIn, btnSignUp;
+    private static final int APP_REQUEST_CODE  = 99;
+    Button btnContinue;
     TextView txtSlogan;
+
+    FirebaseDatabase database;
+    DatabaseReference users;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        printKeyHash();
-        btnSignIn = (Button) findViewById(R.id.btnSignIn);
-        btnSignUp = (Button) findViewById(R.id.btnSignUp);
-        txtSlogan = (TextView) findViewById(R.id.txtSlogan);
-        //Init Paper
-        Paper.init(this);
-        btnSignIn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
 
-            }
-        });
-        btnSignUp.setOnClickListener(new View.OnClickListener() {
+        AccountKit.initialize(this);
+        setContentView(R.layout.activity_main);
+
+        //Init Firebase
+        database = FirebaseDatabase.getInstance();
+        users = database.getReference("User");
+
+        btnContinue = (Button) findViewById(R.id.btn_continue);
+        txtSlogan = (TextView) findViewById(R.id.txtSlogan);
+
+        btnContinue.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent signUp = new Intent(MainActivity.this, SignUp.class);
-                startActivity(signUp);
+                startLoginSystem ();
             }
         });
-        btnSignIn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent signIn = new Intent(MainActivity.this, SignIn.class);
-                startActivity(signIn);
-            }
-        });
-        //Check Remember
-        String user = Paper.book().read(Common.USER_KEY);
-        String pwd = Paper.book().read(Common.PWD_KEY);
-        if (user != null && pwd != null) {
-            if (!user.isEmpty() && !pwd.isEmpty()) login(user, pwd);
+
+        //Cek session Facebook Account Kit
+        if (AccountKit.getCurrentAccessToken() !=null)
+        {
+            //Tampilkan Dialog
+            final AlertDialog waitingDialog = new SpotsDialog(this);
+            waitingDialog.show();
+            waitingDialog.setMessage("Mohon Tunggu");
+            waitingDialog.setCancelable(false);
+
+            AccountKit.getCurrentAccount(new AccountKitCallback<Account>() {
+                @Override
+                public void onSuccess(Account account) {
+                    //Copy code dari exists user
+                    users.child(account.getPhoneNumber().toString())
+                            .addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                                    User localUser = dataSnapshot.getValue(User.class);
+
+                                    Intent homeIntent = new Intent(MainActivity.this, Home.class);
+                                    Common.currentUser = localUser;
+                                    startActivity(homeIntent);
+
+                                    //Dismiss Dialog
+                                    waitingDialog.dismiss();
+
+                                    finish();
+
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                }
+                            });
+
+                }
+
+                @Override
+                public void onError(AccountKitError accountKitError) {
+
+
+                }
+            });
         }
+    }
+
+    private void startLoginSystem() {
+        Intent intent = new Intent(MainActivity.this, AccountKitActivity.class);
+        AccountKitConfiguration.AccountKitConfigurationBuilder configurationBuilder =
+                new AccountKitConfiguration.AccountKitConfigurationBuilder(LoginType.PHONE,
+                        AccountKitActivity.ResponseType.TOKEN);
+        intent.putExtra(AccountKitActivity.ACCOUNT_KIT_ACTIVITY_CONFIGURATION,configurationBuilder.build());
+        startActivityForResult(intent,APP_REQUEST_CODE );
+
     }
 
     private void printKeyHash() {
@@ -87,57 +145,136 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void login(final String phone, final String pwd) {
-        //Tinggal Copy dari SignIn.class
 
-        // insialisasi Database firebase
-        final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        final DatabaseReference table_user = database.getReference("User");
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == APP_REQUEST_CODE )
+        {
+            AccountKitLoginResult result = data.getParcelableExtra(AccountKitLoginResult.RESULT_KEY);
+            if (result.getError() !=null)
+            {
+                Toast.makeText(this, ""+result.getError().getErrorType().getMessage(), Toast.LENGTH_SHORT).show();
+                return;
+            }
+            else if (result.wasCancelled())
+            {
+                Toast.makeText(this, "Batal", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            else
 
-        if (Common.isConnectedToInternet(getBaseContext())) {
+            {
+                if (result.getAccessToken() !=null)
+                {
+                    //Tampilkan Dialog
+                    final AlertDialog waitingDialog = new SpotsDialog(this);
+                    waitingDialog.show();
+                    waitingDialog.setMessage("Mohon Tunggu");
+                    waitingDialog.setCancelable(false);
 
-            final ProgressDialog mDialog = new ProgressDialog(MainActivity.this);
-            mDialog.setMessage("Please Waiting...");
-            mDialog.show();
+                    //Get current Phone
 
-            table_user.addValueEventListener(new ValueEventListener() {
+                    AccountKit.getCurrentAccount(new AccountKitCallback<Account>() {
+                        @Override
+                        public void onSuccess(Account account) {
+                            final String userPhone = account.getPhoneNumber().toString();
 
+                            //Cek apakah sudah ada user didalam firebase
+                            users.orderByKey().equalTo(userPhone)
+                                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                            if (!dataSnapshot.child(userPhone).exists()) // Jika belum ada user maka
+                                            {
+                                                //Kita akan membuat user baru
+                                                User newUser = new User();
+                                                newUser.setPhone(userPhone);
+                                                newUser.setName("");
 
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
+                                                //Tambah ke FIrebase
+                                                users.child(userPhone)
+                                                      .setValue(newUser)
+                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                            @Override
+                                                            public void onComplete(@NonNull Task<Void> task) {
+                                                                if (task.isSuccessful())
+                                                                    Toast.makeText(MainActivity.this, "Registrasi akun berhasil !", Toast.LENGTH_SHORT).show();
 
-                    //cek Database jika belum ada
-                    if (dataSnapshot.child(phone).exists()) {
-                        // Get informasi user
-                        mDialog.dismiss();
-                        User user = dataSnapshot.child(phone).getValue(User.class);
-                        user.setPhone(phone); //set Phone
-                        if (user.getPassword().equals(pwd)) {
-                            {
-                                Intent homeIntent = new Intent(MainActivity.this, Home.class);
-                                Common.currentUser = user;
-                                startActivity(homeIntent);
-                                finish();
+                                                                //Login
+                                                                users.child(userPhone)
+                                                                     .addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                         @Override
+                                                                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                            }
-                        } else {
-                            Toast.makeText(MainActivity.this, "Password salah !!!", Toast.LENGTH_SHORT).show();
+                                                                             User localUser = dataSnapshot.getValue(User.class);
+
+                                                                             Intent homeIntent = new Intent(MainActivity.this, Home.class);
+                                                                             Common.currentUser = localUser;
+                                                                             startActivity(homeIntent);
+
+                                                                             //Dismiss Dialog
+                                                                             waitingDialog.dismiss();
+
+                                                                             finish();
+
+                                                                         }
+
+                                                                         @Override
+                                                                         public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                                                         }
+                                                                     });
+                                                            }
+                                                        });
+
+                                            }
+                                            else //Jika sudah ada user maka
+                                            {
+                                                //Tinggal masuk sa
+                                                //Login
+                                                users.child(userPhone)
+                                                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                                                            @Override
+                                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                                                                User localUser = dataSnapshot.getValue(User.class);
+
+                                                                Intent homeIntent = new Intent(MainActivity.this, Home.class);
+                                                                Common.currentUser = localUser;
+                                                                startActivity(homeIntent);
+
+                                                                //Dismiss Dialog
+                                                                waitingDialog.dismiss();
+
+                                                                finish();
+
+                                                            }
+
+                                                            @Override
+                                                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                                            }
+                                                        });
+
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                        }
+                                    });
                         }
-                    } else {
-                        mDialog.dismiss();
-                        Toast.makeText(MainActivity.this, "User tidak ada di Database ", Toast.LENGTH_SHORT).show();
-                    }
+
+                        @Override
+                        public void onError(AccountKitError accountKitError) {
+                            Toast.makeText(MainActivity.this, ""+accountKitError.getErrorType().getMessage(), Toast.LENGTH_SHORT).show();
+
+                        }
+                    });
                 }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            });
-
-        } else {
-            Toast.makeText(MainActivity.this, "Mohon cek koneksi internet anda", Toast.LENGTH_SHORT).show();
-            return;
+            }
         }
     }
 }

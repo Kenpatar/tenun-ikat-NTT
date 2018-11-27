@@ -10,6 +10,13 @@
 
     <string name="forgot_pwd"><u>Lupa Password?</u></string>
 
-    <!--<string name="facebook_app_id">273248940062371</string>-->
-    <!--<string name="facebook_login_protocol_name">fb273248940062371</string>-->
+    <string name="facebook_application_id">364255747474407</string>
+    <string name="ACCOUNT_KIT_CLIENT_TOKEN">45b1bf850e1db158d8d9260536a5ec4a</string>
+
+
+    // if your Facebook App ID is 1234567, you should use ak1234567
+    <string name="ak_login_protocol_scheme">ak364255747474407</string>
+
+
+
 </resources>

@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#004d40</color>
+    <color name="colorPrimary">#292b3d</color>
     <color name="colorPrimaryDark">#00251a</color>
     <color name="colorAccent">#39796b</color>
     <color name="colorStar">#0c8e1c</color>
     <color name="warna">#4A9586</color>
 
     <color name="white">#FFFFFF</color>
+    <color name="graylight">#fafa</color>
+    <color name="startblue">#09c6df</color>
+    <color name="endblue">#0bcce6</color>
     <color name="btnSignUp">#39796b</color>
     <color name="btnSignActive">#acb764</color>
 
+    <color name="bwRowBackground">#FA315B</color>
 
     <color name="overlayBackground">#7f333639</color>
     <color name="overlayActionBar">#A9d440</color>

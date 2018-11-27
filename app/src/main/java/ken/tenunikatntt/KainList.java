@@ -148,8 +148,7 @@ public class KainList extends AppCompatActivity {
                 //Get Intens Disini
                 if (getIntent() != null)
                     categoryId = getIntent().getStringExtra("CategoryId");
-                if (!categoryId.isEmpty() && categoryId != null)
-                {
+                if (!categoryId.isEmpty() && categoryId != null) {
                     if (Common.isConnectedToInternet(getBaseContext()))
                         loadListKain(categoryId);
                     else {
@@ -303,25 +302,32 @@ public class KainList extends AppCompatActivity {
                         .into(viewHolder.kain_image);
 
                 //Quick Cart
+
                 viewHolder.quick_cart.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        new Database(getBaseContext()).addToCart(new Order(
-                                adapter.getRef(position).getKey(),
-                                model.getName(),
-                                "1",
-                                model.getPrice(),
-                                model.getDiscount(),
-                                model.getImage()
-                        ));
 
+                        boolean isExists = new Database(getBaseContext()).checkKainExists(adapter.getRef(position).getKey(), Common.currentUser.getPhone());
+                        if (!isExists) {
+                            new Database(getBaseContext()).addToCart(new Order(
+                                    Common.currentUser.getPhone(),
+                                    adapter.getRef(position).getKey(),
+                                    model.getName(),
+                                    "1",
+                                    model.getPrice(),
+                                    model.getDiscount(),
+                                    model.getImage()
+                            ));
+                        } else {
+                            new Database(getBaseContext()).increaseCart(Common.currentUser.getPhone(), adapter.getRef(position).getKey());
+                        }
 
                         Toast.makeText(KainList.this, "Added to Cart", Toast.LENGTH_SHORT).show();
                     }
                 });
 
                 //Add Favorites
-                if (localDB.isFavorite(adapter.getRef(position).getKey()))
+                if (localDB.isFavorite(adapter.getRef(position).getKey(), Common.currentUser.getPhone()))
                     viewHolder.fav_image.setImageResource(R.drawable.ic_favorite_border_black_24dp);
 
 //                //Click to share
@@ -338,12 +344,12 @@ public class KainList extends AppCompatActivity {
                 viewHolder.fav_image.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if (!localDB.isFavorite(adapter.getRef(position).getKey())) {
-                            localDB.addToFavorites(adapter.getRef(position).getKey());
+                        if (!localDB.isFavorite(adapter.getRef(position).getKey(), Common.currentUser.getPhone())) {
+                            localDB.addToFavorites(adapter.getRef(position).getKey(), Common.currentUser.getPhone());
                             viewHolder.fav_image.setImageResource(R.drawable.ic_favorite_black_24dp);
                             Toast.makeText(KainList.this, "" + model.getName() + " Ditambahkan ke Favorit", Toast.LENGTH_SHORT).show();
                         } else {
-                            localDB.removeFromFavorites(adapter.getRef(position).getKey());
+                            localDB.removeFromFavorites(adapter.getRef(position).getKey(), Common.currentUser.getPhone());
                             viewHolder.fav_image.setImageResource(R.drawable.ic_favorite_border_black_24dp);
                             Toast.makeText(KainList.this, "" + model.getName() + " Dihapus dari Favorit", Toast.LENGTH_SHORT).show();
                         }

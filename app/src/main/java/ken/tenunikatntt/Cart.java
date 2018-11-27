@@ -264,7 +264,7 @@ public class Cart extends AppCompatActivity implements GoogleApiClient.Connectio
                         .setValue(request);
                 Toast.makeText(Cart.this, "Terima kasih telah memesan", Toast.LENGTH_SHORT).show();
                 //Hapus cart
-                new Database(getBaseContext()).cleanCart();
+                new Database(getBaseContext()).cleanCart(Common.currentUser.getPhone());
 
                 sendNotificationOrder(order_number);
 
@@ -330,7 +330,7 @@ public class Cart extends AppCompatActivity implements GoogleApiClient.Connectio
     }
 
     private void loadKainList() {
-        cart = new Database(this).getCarts();
+        cart = new Database(this).getCarts(Common.currentUser.getPhone());
         adapter = new CartAdapter(cart, this);
         adapter.notifyDataSetChanged();
         recyclerView.setAdapter(adapter);
@@ -358,7 +358,7 @@ public class Cart extends AppCompatActivity implements GoogleApiClient.Connectio
         //We will remove item at List<Order> by position
         cart.remove(position);
         //After that, we will delete all old data from SQLite
-        new Database(this).cleanCart();
+        new Database(this).cleanCart(Common.currentUser.getPhone());
         //And finally, we will update new data from List<Order> to SQLite
         for (Order item : cart)
             new Database(this).addToCart(item);

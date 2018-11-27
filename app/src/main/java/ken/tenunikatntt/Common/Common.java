@@ -13,6 +13,9 @@ import ken.tenunikatntt.Remote.RetrofitClient;
 
 public class Common {
     public static User currentUser;
+
+    public static String topicName = "News";
+
     public static User currentRequests;
 
     public static String PHONE_TEXT = "userPhone";

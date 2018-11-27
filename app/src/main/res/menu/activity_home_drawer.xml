@@ -21,10 +21,16 @@
             android:title="Pesanan" />
 
         <item
-            android:id="@+id/nav_change_pwd"
+            android:id="@+id/nav_update_name"
             android:icon="@drawable/ic_security_black_24dp"
             android:iconTint="@android:color/white"
-            android:title="Ubah Password" />
+            android:title="Ubah Nama" />
+
+        <item
+            android:id="@+id/nav_setting"
+            android:icon="@drawable/ic_settings_black_24dp"
+            android:iconTint="@android:color/white"
+            android:title="Pengaturan" />
 
         <item
             android:id="@+id/nav_log_out"
