@@ -1,16 +1,10 @@
 package ken.tenunikatntt.ViewHolder;
 
-import android.content.Context;
-import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.amulyakhare.textdrawable.TextDrawable;
 import com.cepheuen.elegantnumberbutton.view.ElegantNumberButton;
 import com.squareup.picasso.Picasso;
 
@@ -22,7 +16,6 @@ import java.util.Locale;
 import ken.tenunikatntt.Cart;
 import ken.tenunikatntt.Common.Common;
 import ken.tenunikatntt.Database.Database;
-import ken.tenunikatntt.Interface.ItemClickListener;
 import ken.tenunikatntt.Model.Order;
 import ken.tenunikatntt.R;
 
@@ -92,5 +85,22 @@ public class CartAdapter extends RecyclerView.Adapter<CartViewHolder> {
     @Override
     public int getItemCount() {
         return listData.size();
+    }
+
+    public void removeItem (int position)
+    {
+        listData.remove(position);
+        notifyItemRemoved(position);
+    }
+
+    public void restoreItem (Order item, int position)
+    {
+        listData.add(position,item);
+        notifyItemInserted(position);
+    }
+
+    public Order getItem(int position)
+    {
+        return listData.get(position);
     }
 }

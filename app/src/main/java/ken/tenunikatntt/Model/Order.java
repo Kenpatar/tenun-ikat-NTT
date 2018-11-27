@@ -1,5 +1,7 @@
 package ken.tenunikatntt.Model;
 
+import android.content.ClipData;
+
 /**
  * Created by Emilken18 on 6/18/2018.
  */
@@ -24,6 +26,7 @@ public class Order {
         Price = price;
         Discount = discount;
         Image = image;
+
     }
 
     public String getUserPhone() {

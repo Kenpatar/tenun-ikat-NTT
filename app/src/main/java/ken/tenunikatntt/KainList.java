@@ -161,8 +161,8 @@ public class KainList extends AppCompatActivity {
                 //Search
                 materialSearchBar = findViewById(R.id.searchBar);
                 materialSearchBar.setHint("Masukan nama kain");
-                //MaterialSearchBar.setSpeechMode(false); No need because we already define it at XML
-                loadSuggest(); //Write fuction to load Suggest from Firebase
+                //MaterialSearchBar.setSpeechMode(false); Tidak dibutuhkan lagi karena sudah di define pada file XML
+                loadSuggest(); //Tulis fungsi untuk ambil data suggest dari firebase
 
                 materialSearchBar.setCardViewElevation(10);
                 materialSearchBar.addTextChangeListener(new TextWatcher() {

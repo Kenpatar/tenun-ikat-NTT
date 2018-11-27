@@ -4,20 +4,24 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,6 +53,8 @@ import java.util.Locale;
 import info.hoang8f.widget.FButton;
 import ken.tenunikatntt.Common.Common;
 import ken.tenunikatntt.Database.Database;
+import ken.tenunikatntt.Helper.RecyclerItemTouchHelper;
+import ken.tenunikatntt.Interface.RecyclerItemTouchHelperListener;
 import ken.tenunikatntt.Model.MyResponse;
 import ken.tenunikatntt.Model.Notification;
 import ken.tenunikatntt.Model.Order;
@@ -57,12 +63,13 @@ import ken.tenunikatntt.Model.Sender;
 import ken.tenunikatntt.Model.Token;
 import ken.tenunikatntt.Remote.APIService;
 import ken.tenunikatntt.ViewHolder.CartAdapter;
+import ken.tenunikatntt.ViewHolder.CartViewHolder;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class Cart extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener, LocationListener {
+        GoogleApiClient.OnConnectionFailedListener, LocationListener, RecyclerItemTouchHelperListener {
 
     RecyclerView recyclerView;
     RecyclerView.LayoutManager layoutManager;
@@ -77,7 +84,9 @@ public class Cart extends AppCompatActivity implements GoogleApiClient.Connectio
 
     CartAdapter adapter;
 
+
     APIService mService;
+    RelativeLayout rootLayout;
 
     Place shippingAddress;
 
@@ -120,6 +129,7 @@ public class Cart extends AppCompatActivity implements GoogleApiClient.Connectio
 
         //Init Service
         mService = Common.getFCMService();
+        rootLayout = findViewById(R.id.rootLayout);
 
         //Firebase
         database = FirebaseDatabase.getInstance();
@@ -130,6 +140,10 @@ public class Cart extends AppCompatActivity implements GoogleApiClient.Connectio
         recyclerView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
+
+        //Swipe untuk menghapus
+        ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new RecyclerItemTouchHelper(0,ItemTouchHelper.LEFT,this);
+        new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(recyclerView);
 
         txtTotalPrice = findViewById(R.id.total);
         btnBayar = findViewById(R.id.btnBayar);
@@ -412,5 +426,55 @@ public class Cart extends AppCompatActivity implements GoogleApiClient.Connectio
     public void onLocationChanged(Location location) {
         mLastLocation = location;
         displayLocation();
+    }
+
+    @Override
+    public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction, int position) {
+        if (viewHolder instanceof CartViewHolder)
+        {
+            String name = ((CartAdapter)recyclerView.getAdapter()).getItem(viewHolder.getAdapterPosition()).getProductName();
+            final Order deleteItem = ((CartAdapter) recyclerView.getAdapter()).getItem(viewHolder.getAdapterPosition());
+
+            final int deleteIndex = viewHolder.getAdapterPosition();
+
+            adapter.removeItem(deleteIndex);
+            new Database(getBaseContext()).removeFromCart(deleteItem.getProductId(),Common.currentUser.getPhone());
+
+            //update total bayar
+            //kalkulasi total harga
+
+            int total = 0;
+            List<Order> orders = new Database(getBaseContext()).getCarts(Common.currentUser.getPhone());
+            for (Order item : orders)
+                total += (Integer.parseInt(item.getPrice())) * (Integer.parseInt(item.getQuantity()));
+            Locale locale = new Locale("id", "ID");
+            NumberFormat fmt = NumberFormat.getCurrencyInstance(locale);
+
+            txtTotalPrice.setText(fmt.format(total));
+
+            //Buat SnackBar
+            Snackbar snackbar = Snackbar.make(rootLayout, name+ "Dihapus dari kerannjang", Snackbar.LENGTH_SHORT);
+            snackbar.setAction("Undo", new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    adapter.restoreItem(deleteItem,deleteIndex);
+                    new Database(getBaseContext()).addToCart(deleteItem);
+
+                    //update total bayar
+                    //kalkulasi total harga
+
+                    int total = 0;
+                    List<Order> orders = new Database(getBaseContext()).getCarts(Common.currentUser.getPhone());
+                    for (Order item : orders)
+                        total += (Integer.parseInt(item.getPrice())) * (Integer.parseInt(item.getQuantity()));
+                    Locale locale = new Locale("id", "ID");
+                    NumberFormat fmt = NumberFormat.getCurrencyInstance(locale);
+
+                    txtTotalPrice.setText(fmt.format(total));
+                }
+            });
+            snackbar.setActionTextColor(Color.YELLOW);
+            snackbar.show();
+        }
     }
 }

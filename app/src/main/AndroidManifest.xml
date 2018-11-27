@@ -19,7 +19,6 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCffnGhZZG4FgYwa0ilthoJGGEciWOryg8" />
 
-
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,22 +27,21 @@
             </intent-filter>
         </activity>
 
-
-
-        <meta-data android:name="com.facebook.accountkit.ApplicationName"
+        <meta-data
+            android:name="com.facebook.accountkit.ApplicationName"
             android:value="@string/app_name" />
-        <meta-data android:name="com.facebook.sdk.ApplicationId"
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_application_id" />
-        <meta-data android:name="com.facebook.accountkit.ClientToken"
+        <meta-data
+            android:name="com.facebook.accountkit.ClientToken"
             android:value="@string/ACCOUNT_KIT_CLIENT_TOKEN" />
 
-        <activity
-            android:name="com.facebook.accountkit.ui.AccountKitActivity" />
+        <activity android:name="com.facebook.accountkit.ui.AccountKitActivity" />
 
-
-        <meta-data android:name="com.facebook.accountkit.FacebookAppEventsEnabled"
-            android:value="false"/>
-
+        <meta-data
+            android:name="com.facebook.accountkit.FacebookAppEventsEnabled"
+            android:value="false" />
 
         <activity
             android:name=".Home"
@@ -76,7 +74,8 @@
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorAccent" />
 
-        <activity android:name=".ShowComment"></activity>
+        <activity android:name=".ShowComment" />
+        <activity android:name=".SearchActivity"></activity>
     </application>
 
 </manifest>
