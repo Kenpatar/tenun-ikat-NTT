@@ -30,6 +30,7 @@ import java.util.List;
 import ken.tenunikatntt.Common.Common;
 import ken.tenunikatntt.Database.Database;
 import ken.tenunikatntt.Interface.ItemClickListener;
+import ken.tenunikatntt.Model.Favorites;
 import ken.tenunikatntt.Model.Kain;
 import ken.tenunikatntt.Model.Order;
 import ken.tenunikatntt.ViewHolder.KainViewHolder;
@@ -188,8 +189,19 @@ import ken.tenunikatntt.ViewHolder.KainViewHolder;
                  viewHolder.fav_image.setOnClickListener(new View.OnClickListener() {
                      @Override
                      public void onClick(View view) {
+
+                         Favorites favorites = new Favorites();
+                         favorites.setKainId(adapter.getRef(position).getKey());
+                         favorites.setKainName(model.getName());
+                         favorites.setKainDescription(model.getDescription());
+                         favorites.setKainDiscount(model.getDiscount());
+                         favorites.setKainImage(model.getImage());
+                         favorites.setKainMenuId(model.getMenuId());
+                         favorites.setKainPrice(model.getPrice());
+                         favorites.setUserPhone(Common.currentUser.getPhone());
+
                          if (!localDB.isFavorite(adapter.getRef(position).getKey(), Common.currentUser.getPhone())) {
-                             localDB.addToFavorites(adapter.getRef(position).getKey(), Common.currentUser.getPhone());
+                             localDB.addToFavorites(favorites);
                              viewHolder.fav_image.setImageResource(R.drawable.ic_favorite_black_24dp);
                              Toast.makeText(SearchActivity.this, "" + model.getName() + " Ditambahkan ke Favorit", Toast.LENGTH_SHORT).show();
                          } else {

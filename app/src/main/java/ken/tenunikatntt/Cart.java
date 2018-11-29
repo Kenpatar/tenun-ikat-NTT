@@ -222,7 +222,8 @@ public class Cart extends AppCompatActivity implements GoogleApiClient.Connectio
     private void showAlertDialog() {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(Cart.this);
         alertDialog.setTitle("Satu langkah lagi!");
-        alertDialog.setMessage("Masukan alamat anda: ");
+        alertDialog.setMessage("Silahkan transfer ke no rek BNI: " +
+                "0957597577");
 
         LayoutInflater inflater = this.getLayoutInflater();
         View order_address_comment = inflater.inflate(R.layout.order_address_comment, null);

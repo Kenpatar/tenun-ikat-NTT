@@ -75,7 +75,8 @@
             android:resource="@color/colorAccent" />
 
         <activity android:name=".ShowComment" />
-        <activity android:name=".SearchActivity"></activity>
+        <activity android:name=".SearchActivity" />
+        <activity android:name=".FavoritesActivity"></activity>
     </application>
 
 </manifest>

@@ -56,6 +56,7 @@ public class ShowComment extends AppCompatActivity {
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
+
         mSwipeRefreshLayout = findViewById(R.id.swipe_layout);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -129,6 +130,7 @@ public class ShowComment extends AppCompatActivity {
                 }
             }
         });
+
     }
 
     @Override

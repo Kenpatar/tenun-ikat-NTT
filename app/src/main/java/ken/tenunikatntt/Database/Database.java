@@ -10,6 +10,7 @@ import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
 import java.util.ArrayList;
 import java.util.List;
 
+import ken.tenunikatntt.Model.Favorites;
 import ken.tenunikatntt.Model.Order;
 
 /**
@@ -123,10 +124,20 @@ public class Database extends SQLiteAssetHelper{
     }
 
     //Favorites
-    public void addToFavorites(String KainId, String userPhone)
+    public void addToFavorites(Favorites kain)
     {
         SQLiteDatabase db = getReadableDatabase();
-        String query = String.format("INSERT INTO Favorites (KainId, UserPhone) VALUES('%s','%s');",KainId,userPhone);
+        String query = String.format("INSERT INTO Favorites (" +
+                        "KainId, KainName, KainPrice, KainMenuId, KainImage, KainDiscount, KainDescription, UserPhone) " +
+                "VALUES('%s','%s','%s','%s','%s','%s','%s','%s');",
+                kain.getKainId(),
+                kain.getKainName(),
+                kain.getKainPrice(),
+                kain.getKainMenuId(),
+                kain.getKainImage(),
+                kain.getKainDiscount(),
+                kain.getKainDescription(),
+                kain.getUserPhone());
         db.execSQL(query);
     }
 
@@ -151,5 +162,34 @@ public class Database extends SQLiteAssetHelper{
         return true;
     }
 
+    public List<Favorites> getAllFavorites(String userPhone)
+    {
+        SQLiteDatabase db = getReadableDatabase();
+        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 
+        String[] sqlSelect = {"UserPhone","KainId","KainName","KainPrice","KainMenuId","KainImage","KainDiscount","KainDescription"};
+        String sqlTable = "Favorites";
+
+        qb.setTables(sqlTable);
+        Cursor c = qb.query(db,sqlSelect,"UserPhone=?",new String[]{userPhone},null,null,null);
+
+        final List<Favorites> result = new ArrayList<>();
+        if (c.moveToFirst())
+        {
+            do {
+                result.add(new Favorites(
+                        c.getString(c.getColumnIndex("UserPhone")),
+                        c.getString(c.getColumnIndex("KainId")),
+                        c.getString(c.getColumnIndex("KainName")),
+                        c.getString(c.getColumnIndex("KainPrice")),
+                        c.getString(c.getColumnIndex("KainMenuId")),
+                        c.getString(c.getColumnIndex("KainImage")),
+                        c.getString(c.getColumnIndex("KainDiscount")),
+                        c.getString(c.getColumnIndex("KainDescription"))
+
+                ));
+            }while (c.moveToNext());
+        }
+        return result;
+    }
 }

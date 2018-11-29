@@ -334,7 +334,7 @@ public class Home extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_search)
-            startActivity(new Intent(Home.this,SearchActivity.class));
+            startActivity(new Intent(Home.this, SearchActivity.class));
 
         return super.onOptionsItemSelected(item);
     }
@@ -355,6 +355,7 @@ public class Home extends AppCompatActivity
             Intent orderIntent = new Intent(Home.this, OrderStatus.class);
             startActivity(orderIntent);
 
+
         } else if (id == R.id.nav_log_out) {
 
             //Delete Remember user & Password
@@ -370,12 +371,15 @@ public class Home extends AppCompatActivity
 
         } else if (id == R.id.nav_setting) {
             showSettingDialog();
+
+        } else if (id == R.id.nav_favorites) {
+            startActivity(new Intent(Home.this, FavoritesActivity.class));
         }
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
-    }
+            DrawerLayout drawer = findViewById(R.id.drawer_layout);
+            drawer.closeDrawer(GravityCompat.START);
+            return true;
+        }
 
     private void showSettingDialog() {
 
